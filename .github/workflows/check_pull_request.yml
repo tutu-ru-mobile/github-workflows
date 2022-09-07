@@ -5,23 +5,24 @@ on:
     secrets:
       github_access_token:
         required: true
-  workflow_dispatch:
 
 jobs:
   check_pr:
     name: 'Check pull request'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout
-    - uses: ruby/setup-ruby
-      with:
-        ruby-version: '2.7'
-        bundler-cache: true
-    - uses: MeilCli/danger-action
-      with:
-        plugins_file: 'Gemfile'
-        install_path: 'vendor/bundle'
-        danger_file: 'Dangerfile'
-        danger_id: 'danger-pr'
-      env:
-        DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+          bundler-cache: true
+      - uses: MeilCli/danger-action@v5
+        with:
+          plugins_file: 'Gemfile'
+          install_path: 'vendor/bundle'
+          danger_file: 'Dangerfile'
+          danger_id: 'danger-pr'
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
