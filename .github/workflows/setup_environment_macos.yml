@@ -14,4 +14,4 @@ jobs:
       - uses: styfle/cancel-workflow-action@0.10.0
         with:
           all_but_latest: true
-          access_token: ${{ github_access_token }}
+          access_token: ${{ secrets.github_access_token }}
