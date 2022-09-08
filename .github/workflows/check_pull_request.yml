@@ -20,6 +20,7 @@ jobs:
           all_but_latest: true
           access_token: ${{ secrets.github_access_token }}
   check_pr:
+    needs: cancel_previous_runs
     name: 'Check pull request'
     runs-on: ubuntu-latest
     if: github.event_name  == 'pull_request'
