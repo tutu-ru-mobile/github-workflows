@@ -33,8 +33,8 @@ jobs:
           all_but_latest: true
           access_token: ${{ secrets.github_access_token }}
   bump:
+    needs: cancel_previous_runs
     runs-on: macos-12
-    if: github.event.pull_request.merged == true
     steps:
       - name: Setup SSH
         uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
