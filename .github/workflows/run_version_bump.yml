@@ -1,0 +1,51 @@
+name: Run version bump
+
+on:
+  workflow_call:
+    inputs:
+      bump_type:
+        type: string
+        required: true
+      is_run_fastlane:
+        type: boolean
+        required: true
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cancel_previous_runs:
+    name: 'Cancel Previous Runs'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.10.0
+        with:
+          all_but_latest: true
+          access_token: ${{ secrets.github_access_token }}
+  bump:
+    runs-on: macos-12
+    if: github.event.pull_request.merged == true
+    steps:
+      - run: xcversion select --symlink 13.4.1
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+          bundler-cache: true
+      - name: Setup SSH
+        uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
+        with:
+          ssh-private-key: ${{ secrets.ssh_private_key }}
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+      - name: Change origin to ssh link
+        run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
+      - if: ${{ inputs.is_run_fastlane }}
+        name: Bump
+        run: bundle exec fastlane ${{ inputs.bump_type }}
