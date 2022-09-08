@@ -1,0 +1,6 @@
+name: "Select Xcode version"
+
+runs:
+  using: "composite"
+  steps:
+    - run: xcversion select --symlink 13.4.1

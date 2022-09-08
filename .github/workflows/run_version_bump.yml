@@ -4,9 +4,13 @@ on:
   workflow_call:
     inputs:
       bump_type:
+        description: 'What type of number will be bumped: patch|minor|major. Default is `patch`'
+        default: 'patch'
         type: string
         required: true
       is_run_fastlane:
+        description: 'Manual run or with fastlane lane. Default is `true`'
+        default: true
         type: boolean
         required: true
     secrets:
@@ -32,18 +36,16 @@ jobs:
     runs-on: macos-12
     if: github.event.pull_request.merged == true
     steps:
-      - run: xcversion select --symlink 13.4.1
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.7'
-          bundler-cache: true
       - name: Setup SSH
         uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
         with:
           ssh-private-key: ${{ secrets.ssh_private_key }}
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           ref: main
+      - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version.yml@v1
+      - uses: tutu-ru-mobile/github-workflows/action_install_dependencies.yml@v1
       - name: Change origin to ssh link
         run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
       - if: ${{ inputs.is_run_fastlane }}
