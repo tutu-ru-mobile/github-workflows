@@ -6,6 +6,10 @@ on:
       github_access_token:
         required: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   cancel_previous_runs:
     name: 'Cancel Previous Runs'
