@@ -12,6 +12,9 @@ runs:
     - name: Configure bundler
       run: bundle config set --local path 'vendor/bundle'
       shell: bash
-    - name: Install gems
-      run: bundle install
+    - name: Install gems if Gemfile exists
+      run: |
+        if test -f "Gemfile"; then
+          bundle install
+        fi
       shell: bash
