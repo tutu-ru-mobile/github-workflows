@@ -1,4 +1,5 @@
-name: "Install all dependencies (Brewfile, Gemfile)"
+name: "Setup environment (dependencies)"
+description: "Install all dependencies (Brewfile, Gemfile)"
 
 runs:
   using: "composite"

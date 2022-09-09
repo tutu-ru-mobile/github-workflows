@@ -1,4 +1,5 @@
-name: "Install Gemfile dependencies"
+name: "Setup environment (ruby dependencies)"
+description: "Install all dependencies (Gemfile)"
 
 runs:
   using: "composite"

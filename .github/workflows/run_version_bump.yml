@@ -36,14 +36,14 @@ jobs:
     needs: cancel_previous_runs
     runs-on: macos-12
     steps:
-      - name: Setup SSH
-        uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
-        with:
-          ssh-private-key: ${{ secrets.ssh_private_key }}
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           ref: main
+      - name: Setup SSH
+        uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
+        with:
+          ssh-private-key: ${{ secrets.ssh_private_key }}
       - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@v1.0.2
       - uses: tutu-ru-mobile/github-workflows/action_install_dependencies@v1.0.2
       - name: Change origin to ssh link

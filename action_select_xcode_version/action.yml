@@ -1,4 +1,5 @@
-name: "Select Xcode version"
+name: "Setup environment (Xcode)"
+description: "Select Xcode version"
 
 runs:
   using: "composite"
