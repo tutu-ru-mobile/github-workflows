@@ -10,7 +10,10 @@ runs:
         bundler-cache: true
     - name: Configure bundler
       run: bundle config set --local path 'vendor/bundle'
+      shell: bash
     - name: Install gems
       run: bundle install
+      shell: bash
     - name: Install brew dependencies
       run: brew bundle
+      shell: bash

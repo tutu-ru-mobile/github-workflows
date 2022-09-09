@@ -4,3 +4,4 @@ runs:
   using: "composite"
   steps:
     - run: xcversion select --symlink 13.4.1
+      shell: bash
