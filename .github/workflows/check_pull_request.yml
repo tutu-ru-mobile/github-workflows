@@ -27,10 +27,12 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      - name: Add linux arch to bundle lock
+        run: bundle lock --add-platform x86_64-linux
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7'
+          ruby-version: '2.7.6'
           bundler-cache: true
       - run: bundle config set --local path 'vendor/bundle'
       - uses: MeilCli/danger-action@v5

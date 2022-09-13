@@ -7,7 +7,7 @@ runs:
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.7'
+        ruby-version: '2.7.6'
         bundler-cache: true
     - name: Configure bundler
       run: bundle config set --local path 'vendor/bundle'
