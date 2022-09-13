@@ -27,14 +27,17 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - name: Add linux arch to bundle lock
-        run: bundle lock --add-platform x86_64-linux
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7.6'
-          bundler-cache: true
-      - run: bundle config set --local path 'vendor/bundle'
+      - name: Install ruby dependencies
+        run: |
+          if test -f "Gemfile"; then
+            bundle lock --add-platform x86_64-linux
+            bundle config set --local path 'vendor/bundle'
+            bundle install
+          fi
       - uses: MeilCli/danger-action@v5
         with:
           plugins_file: 'Gemfile'
