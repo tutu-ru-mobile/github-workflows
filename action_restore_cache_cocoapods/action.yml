@@ -1,0 +1,15 @@
+name: "Restore cache for cocoapods"
+description: "Restore cache for cocoapods"
+
+runs:
+  using: "composite"
+  
+  steps:
+  - name: Restore cache cocoapods
+    continue-on-error: true
+    uses: actions/cache@v1
+    with:
+      path: Pods
+      key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+      restore-keys: |
+        ${{ runner.os }}-pods
