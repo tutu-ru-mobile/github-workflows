@@ -31,6 +31,8 @@ on:
     secrets:
       github_access_token:
         required: true
+      ssh_private_key:
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
