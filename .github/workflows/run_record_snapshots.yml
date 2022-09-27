@@ -1,4 +1,4 @@
-name: Run Xcode tests
+name: Run Record snapshots
 
 on:
   workflow_call:
@@ -13,22 +13,13 @@ on:
         type: string
         required: true
       scheme_name:
-        description: 'Scheme name to run'
+        description: 'Scheme name to run for record snapshots'
         type: string
         required: true
       xcresult_name:
         description: 'File bundle path to save xcresult'
         type: string
         required: true
-      is_collect_issues:
-        description: '`true` for collect issues and show via Danger'
-        type: boolean
-        default: false
-        required: false
-      dangerfile_name:
-        description: 'Path to Dangerfile'
-        type: string
-        required: false
     secrets:
       github_access_token:
         required: true
@@ -48,8 +39,7 @@ jobs:
         with:
           all_but_latest: true
           access_token: ${{ secrets.github_access_token }}
-  run_xcode_tests:
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
+  record_snapshots:
     needs: cancel_previous_runs
     runs-on: macos-12
     strategy:
@@ -75,17 +65,20 @@ jobs:
         run: |
           make install-xcodegen
           make generate-xcodeproj
-      - name: Compile and Test
-        run: xcodebuild clean test -workspace ${{ inputs.workspace_name }} -scheme ${{ inputs.scheme_name }} -destination "${destination}" -resultBundlePath '${{ inputs.xcresult_name }}' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO | bundle exec xcpretty
+      - name: Remove snapshots
+        run: find . -type d -name "__Snapshots__" -exec rm -rf {} +
+      - name: Build and record Snapshots
+        run: xcodebuild clean test -workspace ${{ inputs.workspace_name }} -scheme ${{ inputs.scheme_name }} -testLanguage ru -testRegion ru_RU -destination "${destination}" -resultBundlePath '${{ inputs.xcresult_name }}' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO | bundle exec xcpretty
         env:
            destination: ${{ matrix.destination }}
-      - if: ${{ inputs.is_collect_issues }}
-        name: Collect issues
-        uses: MeilCli/danger-action@v5
+      - name: Make PR with new snapshots
+        uses: tutu-ru-mobile/create-pull-request@tutu
         with:
-          plugins_file: 'Gemfile'
-          install_path: 'vendor/bundle'
-          danger_file: ${{ inputs.dangerfile_name }}
-          danger_id: 'danger-pr'
-        env:
-          DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
+          branch: "feature/NO-ISSUE_recording_${{github.run_id}}"
+          delete-branch: true
+          token: ${{ secrets.github_access_token }}
+          base: ${{ github.head_ref }}
+          title: "NO-ISSUE: updated snapshots"
+          body: >
+              Updated snapshots 
+          add-pattern-array: "**__Snapshots__**.png"
