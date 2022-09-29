@@ -1,0 +1,44 @@
+name: Send alert to telegram
+
+on:
+  workflow_call:
+    inputs:
+      text_for_success:
+        description: 'Message for success'
+        required: true
+        type: string
+        default: 'Success!'
+      text_for_failure:
+        description: 'Message for failure'
+        required: true
+        type: string
+        default: 'Failure!'
+    secrets:
+      telegram_token:
+        required: true
+      telegram_chat_id:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  send_alert:
+    name: 'Send alert'
+    runs-on: ubuntu-latest
+    steps:
+      - if: failure()
+        name: Telegram Notification
+        run: |
+            curl -X POST "https://api.telegram.org/bot${{ secrets.telegram_token }}/sendMessage" \
+            -d "chat_id=${{ secrets.telegram_chat_id }}\
+            &text=❌ ${{ inputs.text_for_failure }} \
+            , see logs here https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+      - if: success()
+        name: Telegram Notification
+        run: |
+            curl -X POST "https://api.telegram.org/bot${{ secrets.telegram_token }}/sendMessage" \
+            -d "chat_id=${{ secrets.telegram_chat_id }}\
+            &text=✅ ${{ inputs.text_for_success }} \
+            , see logs here https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
