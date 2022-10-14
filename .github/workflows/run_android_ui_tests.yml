@@ -1,4 +1,4 @@
-name: Run Android Unit tests
+name: Run Android UI tests
 
 on:
   workflow_call:
@@ -8,12 +8,19 @@ on:
         type: boolean
         default: true
         required: false
+      flank_configuration_file:
+        description: "Path to Flank configuration"
+        type: string
+        default: "./ci/flank/pr_tests_config.yml"
+        required: false
     secrets:
       github_access_token:
         required: true
       ssh_private_key:
         required: false
       maven_readonly_token:
+        required: true
+      firebase_key:
         required: true
 
 concurrency:
@@ -40,11 +47,29 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-      - name: Run unit tests
+      - name: Assemble
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test --no-daemon
+          arguments: assembleDebug assembleDebugAndroidTest
           cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
+      - name: Upload sample debug APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: sample_app-debug
+          path: sample_app/build/outputs/apk/debug/sample_app-debug.apk
+      - name: Upload androidTest APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: sample_app-debug-androidTest
+          path: sample_app/build/outputs/apk/androidTest/debug/sample_app-debug-androidTest.apk
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+      - name: Run instrumented tests
+        uses: Flank/flank@master
+        with:
+          service_account: ${{ secrets.firebase_key }}
+          platform: android
+          flank_configuration_file: ${{ inputs.flank_configuration_file }}
