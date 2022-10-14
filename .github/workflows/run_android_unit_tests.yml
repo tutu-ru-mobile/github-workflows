@@ -1,0 +1,47 @@
+name: Run Android Unit tests
+
+on:
+  workflow_call:
+    inputs:
+      is_gradle_cache_debug_enabled: # env: GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED:
+        description: "Enable or disable Gradle build cache"
+        type: boolean
+        default: true
+        required: false
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: false
+      maven_readonly_token:
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cancel_previous_runs:
+    name: 'Cancel Previous Runs'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          all_but_latest: true
+          access_token: ${{ secrets.github_access_token }}
+  run_unit_tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - name: Run unit tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test --no-daemon
+          cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
