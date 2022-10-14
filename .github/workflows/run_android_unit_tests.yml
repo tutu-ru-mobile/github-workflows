@@ -45,3 +45,6 @@ jobs:
         with:
           arguments: test --no-daemon
           cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
