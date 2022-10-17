@@ -36,8 +36,8 @@ jobs:
         with:
           all_but_latest: true
           access_token: ${{ secrets.github_access_token }}
-  run_unit_tests:
-    name: Unit tests
+  run_ui_tests:
+    name: UI tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
