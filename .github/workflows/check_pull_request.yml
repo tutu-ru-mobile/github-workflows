@@ -39,6 +39,7 @@ jobs:
             bundle install
           fi
       - uses: MeilCli/danger-action@v5
+        continue-on-error: true
         with:
           plugins_file: 'Gemfile'
           danger_file: 'Dangerfile'
