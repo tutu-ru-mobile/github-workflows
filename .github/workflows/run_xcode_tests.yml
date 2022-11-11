@@ -58,7 +58,7 @@ jobs:
         swift: ["5.5"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.1.0
         with:
           ref: main
       - name: Setup SSH
