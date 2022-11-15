@@ -58,9 +58,7 @@ jobs:
         swift: ["5.5"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@master
-        with:
-          ref: main
+        uses: actions/checkout@v3.1.0
       - name: Setup SSH
         uses: tutu-ru-mobile/github-action-ssh-agent@v1.0.0
         with:
