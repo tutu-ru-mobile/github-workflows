@@ -37,7 +37,7 @@ jobs:
     runs-on: macos-12
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@master
         with:
           ref: main
       - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@v1.0.3
