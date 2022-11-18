@@ -43,7 +43,7 @@ jobs:
       - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@v1.0.3
       - uses: tutu-ru-mobile/github-workflows/action_install_dependencies@v1.0.3
       - name: Setup SSH
-        uses: tutu-ru-mobile/github-action-ssh-agent@v1.0.0
+        uses: tutu-ru-mobile/github-action-ssh-agent@v1.1.0-tutu
         with:
           ssh-private-key: ${{ secrets.ssh_private_key }}
       - name: Change origin to ssh link

@@ -51,7 +51,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3.1.0
       - name: Setup SSH
-        uses: tutu-ru-mobile/github-action-ssh-agent@v1.0.0
+        uses: tutu-ru-mobile/github-action-ssh-agent@v1.1.0-tutu
         with:
           ssh-private-key: ${{ secrets.ssh_private_key }}
       - name: Change origin to ssh link
