@@ -30,6 +30,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  record_xcresults_name: "RecordSnapshots.xcresult"
+
 jobs:
   cancel_previous_runs:
     name: 'Cancel Previous Runs'
@@ -67,7 +70,7 @@ jobs:
         run: find . -type d -name "__Snapshots__" -exec rm -rf {} +
       - name: Build and record Snapshots (First run)
         continue-on-error: true
-        run: xcodebuild clean test -workspace ${{ inputs.workspace_name }} -scheme ${{ inputs.scheme_name }} -testLanguage ru -testRegion ru_RU -destination "${destination}" -resultBundlePath '${{ inputs.xcresult_name }}' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO | bundle exec xcpretty
+        run: xcodebuild clean test -workspace ${{ inputs.workspace_name }} -scheme ${{ inputs.scheme_name }} -testLanguage ru -testRegion ru_RU -destination "${destination}" -resultBundlePath '${{ env.record_xcresults_name }}' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO | bundle exec xcpretty
         env:
            destination: ${{ matrix.destination }}
       - name: Check Snapshots (Second run)
@@ -85,3 +88,11 @@ jobs:
           body: >
               Updated snapshots 
           add-pattern-array: "**__Snapshots__**.png"
+      - name: Save xcresult folders
+        uses: actions/upload-artifact@v2
+        with:
+          name: Folders with xcresults
+          path: |
+            ${{ env.record_xcresults_name }}
+            ${{ inputs.xcresult_name }}
+          retention-days: 1
