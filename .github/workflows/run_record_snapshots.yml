@@ -65,8 +65,13 @@ jobs:
           make generate-xcodeproj
       - name: Remove snapshots
         run: find . -type d -name "__Snapshots__" -exec rm -rf {} +
-      - name: Build and record Snapshots
-        run: xcodebuild clean test -workspace ${{ inputs.workspace_name }} -scheme ${{ inputs.scheme_name }} -testLanguage ru -testRegion ru_RU -destination "${destination}" -resultBundlePath '${{ inputs.xcresult_name }}' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO | bundle exec xcpretty && exit ${PIPESTATUS[0]}
+      - name: Build and record Snapshots (First run)
+        continue-on-error: true
+        run: xcodebuild clean test -workspace ${{ inputs.workspace_name }} -scheme ${{ inputs.scheme_name }} -testLanguage ru -testRegion ru_RU -destination "${destination}" -resultBundlePath '${{ inputs.xcresult_name }}' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO | bundle exec xcpretty
+        env:
+           destination: ${{ matrix.destination }}
+      - name: Check Snapshots (Second run)
+        run: xcodebuild test -workspace ${{ inputs.workspace_name }} -scheme ${{ inputs.scheme_name }} -testLanguage ru -testRegion ru_RU -destination "${destination}" -resultBundlePath '${{ inputs.xcresult_name }}' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO | bundle exec xcpretty && exit ${PIPESTATUS[0]}
         env:
            destination: ${{ matrix.destination }}
       - name: Make PR with new snapshots
