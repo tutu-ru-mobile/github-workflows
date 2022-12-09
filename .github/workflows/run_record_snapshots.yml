@@ -51,7 +51,9 @@ jobs:
         swift: ["5.5"]
     steps:
       - name: System info
-        run: system_profiler SPSoftwareDataType SPHardwareDataType
+        run: |
+          echo "CPU arch" && arch
+          system_profiler SPSoftwareDataType SPHardwareDataType
       - name: Checkout repository
         uses: actions/checkout@v3.1.0
       - name: Setup SSH
