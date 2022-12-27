@@ -16,17 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cancel_previous_runs:
-    name: 'Cancel Previous Runs'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          all_but_latest: true
-          access_token: ${{ secrets.github_access_token }}
-
   security_scan:
-    needs: cancel_previous_runs
     name: 'Security scan'
     runs-on: [self-hosted,security,scan]
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
