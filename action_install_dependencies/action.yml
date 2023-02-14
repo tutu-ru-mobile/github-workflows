@@ -9,9 +9,9 @@ runs:
       with:
         ruby-version: '2.7.6'
         bundler-cache: true
-    - name: Configure bundler
-      run: bundle config set --local path 'vendor/bundle'
-      shell: bash
+#     - name: Configure bundler
+#       run: bundle config set --local path 'vendor/bundle'
+#       shell: bash
     - name: Install gems if Gemfile exists
       run: |
         if test -f "Gemfile"; then
