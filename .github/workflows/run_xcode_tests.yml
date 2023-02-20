@@ -60,9 +60,9 @@ jobs:
           ssh-private-key: ${{ secrets.ssh_private_key }}
       - name: Change origin to ssh link
         run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
-      - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@v1.0.4
-      - uses: tutu-ru-mobile/github-workflows/action_install_dependencies@v1.0.4
-      - uses: tutu-ru-mobile/github-workflows/action_restore_cache_cocoapods@v1.0.4
+      - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@v1.0.5
+      - uses: tutu-ru-mobile/github-workflows/action_install_dependencies@v1.0.5
+      - uses: tutu-ru-mobile/github-workflows/action_restore_cache_cocoapods@v1.0.5
       - if: ${{ inputs.is_run_xcodegen }}
         name: Generate xcodeproj
         run: |
