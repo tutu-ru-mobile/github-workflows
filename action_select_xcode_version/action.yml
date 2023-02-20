@@ -4,5 +4,5 @@ description: "Select Xcode version"
 runs:
   using: "composite"
   steps:
-    - run: xcversion select --symlink 13.4.1
+    - run: xcversion select --symlink 14.2
       shell: bash
