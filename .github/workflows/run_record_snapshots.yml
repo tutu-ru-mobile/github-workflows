@@ -20,6 +20,11 @@ on:
         description: 'File bundle path to save xcresult'
         type: string
         required: true
+      is_run_check:
+        description: '`true` is for run check snapshots after record'
+        default: false
+        type: boolean
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -77,7 +82,8 @@ jobs:
         run: xcodebuild clean test -workspace ${{ inputs.workspace_name }} -scheme ${{ inputs.scheme_name }} -testLanguage ru -testRegion ru_RU -destination "${destination}" -resultBundlePath '${{ env.record_xcresults_name }}' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO | bundle exec xcpretty
         env:
            destination: ${{ matrix.destination }}
-      - name: Check Snapshots (Second run)
+      - if: ${{ inputs.is_run_check }}
+        name: Check Snapshots (Second run)
         run: xcodebuild test -workspace ${{ inputs.workspace_name }} -scheme ${{ inputs.scheme_name }} -testLanguage ru -testRegion ru_RU -destination "${destination}" -resultBundlePath '${{ inputs.xcresult_name }}' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO | bundle exec xcpretty && exit ${PIPESTATUS[0]}
         env:
            destination: ${{ matrix.destination }}
