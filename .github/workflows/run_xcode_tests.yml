@@ -37,9 +37,6 @@ on:
 
 jobs:
   run_xcode_tests:
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-${{ github.run_id }}
-      cancel-in-progress: true
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
     runs-on: macos-12
     strategy:
