@@ -68,7 +68,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
       - name: Run instrumented tests
-        uses: Flank/flank@master
+        uses: Flank/flank@v23.04.0
         with:
           service_account: ${{ secrets.firebase_key }}
           platform: android
