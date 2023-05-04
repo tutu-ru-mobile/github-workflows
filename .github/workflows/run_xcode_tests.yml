@@ -72,8 +72,7 @@ jobs:
             -test-iterations 5 \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            ONLY_ACTIVE_ARCH=NO \
-            | bundle exec xcpretty && exit ${PIPESTATUS[0]}
+            ONLY_ACTIVE_ARCH=NO
         env:
            destination: ${{ matrix.destination }}
       - if: ${{ inputs.is_collect_issues }}
