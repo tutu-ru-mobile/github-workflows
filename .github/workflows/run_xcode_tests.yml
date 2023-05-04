@@ -44,10 +44,6 @@ jobs:
         destination: ['platform=iOS Simulator,name=iPhone 11']
         swift: ["5.5"]
     steps:
-      - name: System info
-        run: |
-          echo "CPU arch" && arch
-          system_profiler SPSoftwareDataType SPHardwareDataType
       - name: Checkout repository
         uses: actions/checkout@v3.1.0
       - name: Setup SSH
@@ -65,6 +61,7 @@ jobs:
           make install-xcodegen
           make generate-xcodeproj
       - name: Compile and Test
+        timeout-minutes: 90
         run: |
             xcodebuild clean test \
             -workspace ${{ inputs.workspace_name }} \
@@ -73,7 +70,6 @@ jobs:
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
             -test-iterations 5 \
-            -test-repetition-relaunch-enabled YES \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO \
