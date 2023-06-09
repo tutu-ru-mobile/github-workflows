@@ -63,7 +63,9 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 90
         run: |
+            touch .ci_tag
             xcodebuild clean test \
+            -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
             -destination "${destination}" \
@@ -73,6 +75,7 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO
+            rm .ci_tag
         env:
            destination: ${{ matrix.destination }}
       - if: ${{ inputs.is_collect_issues }}
