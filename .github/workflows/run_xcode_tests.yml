@@ -60,10 +60,13 @@ jobs:
         run: |
           make install-xcodegen
           make generate-xcodeproj
+      - name: Create ci tag
+        run: touch .ci_tag
       - name: Compile and Test
         timeout-minutes: 90
         run: |
             xcodebuild clean test \
+            -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
             -destination "${destination}" \
@@ -75,6 +78,8 @@ jobs:
             ONLY_ACTIVE_ARCH=NO
         env:
            destination: ${{ matrix.destination }}
+      - name: Remove ci tag
+        run: rm .ci_tag
       - if: ${{ inputs.is_collect_issues }}
         continue-on-error: true
         name: Collect issues
