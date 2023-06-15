@@ -39,8 +39,8 @@ jobs:
       run: |
         SWIFTLINT_DIR="vendor/etc/bin/swiftlint"
 
-        # url=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
-        # echo "Get file diffs from $url"
+        url=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
+        echo "Get file diffs from $url"
         CHANGED_FILES=$( \
         curl -H "Accept: application/vnd.github.v3.diff" -H "Authorization: token ${{ secrets.github_access_token }}" $url \
             | { grep -E '^diff --git (a\/.+.swift) (b\/.+.swift)$' || :; } \
