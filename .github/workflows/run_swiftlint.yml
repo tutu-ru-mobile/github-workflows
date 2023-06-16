@@ -46,12 +46,13 @@ jobs:
             | { grep -E '^diff --git (a\/.+.swift) (b\/.+.swift)$' || :; } \
             | awk '{print substr($4,3)}'
             )
-        if [ -z $CHANGED_FILES ]; then
+        if [ -z "$CHANGED_FILES" ]; then
           echo "Nothing to lint"
           exit 0
         fi
         
-        for path in $(echo ${{ inputs.paths }} | awk -F ',' '{ for( i=1; i<=NF; i++ ) print $i }' ); do
+        paths_list=$(echo ${{ inputs.paths }} | awk -F ',' '{ for( i=1; i<=NF; i++ ) print $i }' )
+        for path in "$paths_list"; do
             last_path=$(echo $path | awk -F "/" '{print $NF}')
             config=".$last_path.swiftlint.yml"
             source_dir=$path
