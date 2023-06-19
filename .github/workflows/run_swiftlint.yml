@@ -1,0 +1,76 @@
+name: Swiftlint
+
+on:
+  workflow_call:
+    inputs:
+      paths:
+        description: 'Paths for linting folders from root separated by comma'
+        default: ""
+        type: string
+        required: true
+      is_strict:
+        description: 'Any lint warnings will be determine as error'
+        default: false
+        type: boolean
+        required: true
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: true
+jobs:
+  linter:
+    runs-on: macos-12
+    steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.9.1
+      with:
+        access_token: ${{ github.token }}
+    - uses: actions/checkout@v2
+      with:
+        lfs: true
+    - name: Setup SSH
+      uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
+      with:
+        ssh-private-key: ${{ secrets.ssh_private_key }}
+    - name: Sync SwiftLint version
+      run: ./download_project_utils.sh
+    - name: Run SwiftLint
+      run: |
+        SWIFTLINT_DIR="vendor/etc/bin/swiftlint"
+
+        url=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
+        echo "Get file diffs from $url"
+        CHANGED_FILES=$( \
+        curl -H "Accept: application/vnd.github.v3.diff" -H "Authorization: token ${{ secrets.github_access_token }}" $url \
+            | { grep -E '^diff --git (a\/.+.swift) (b\/.+.swift)$' || :; } \
+            | awk '{print substr($4,3)}'
+            )
+        if [ -z "$CHANGED_FILES" ]; then
+          echo "Nothing to lint"
+          exit 0
+        fi
+        
+        paths_list=$(echo ${{ inputs.paths }} | awk -F ',' '{ for( i=1; i<=NF; i++ ) print $i }' )
+        for path in ${paths_list[@]}; do
+            last_path=$(echo $path | awk -F "/" '{print $NF}')
+            config=".$last_path.swiftlint.yml"
+            source_dir=$path
+            filtered=$( for file in ${CHANGED_FILES[@]}; do echo $file; done | { grep -E "^$source_dir/" || :; } )
+            config_args=""
+    
+            if [ -n "$filtered" ]; then
+                echo "Run SwiftLint ($($SWIFTLINT_DIR/swiftlint --version)) using $config"
+                config_args=""
+                if [ ${{ inputs.is_strict }} == true ]; then
+                  config_args+="--strict "
+                fi
+                config_args+="--config $config"
+                echo "Run with args $config_args"
+                # https://stackoverflow.com/a/71571290
+                $SWIFTLINT_DIR/swiftlint $config_args $filtered \
+                    | sed -E 's/^(.*):([0-9]+):([0-9]+): (warning|error|[^:]+): (.*)/::\4 title=SwiftLint,file=\1,line=\2,col=\3::\5\n\1:\2:\3/'
+            else
+                echo "Nothing to lint for $source_dir. Skip it"
+            fi
+        done
