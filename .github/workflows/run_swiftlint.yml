@@ -13,6 +13,11 @@ on:
         default: false
         type: boolean
         required: true
+      config_path:
+        description: 'Custom base path for swiftlint configuration file. Config search will be performed on the root if path does not specified'
+        default: ""
+        type: string
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -55,6 +60,9 @@ jobs:
         for path in ${paths_list[@]}; do
             last_path=$(echo $path | awk -F "/" '{print $NF}')
             config=".$last_path.swiftlint.yml"
+            if [ ! -z ${{ inputs.config_path }} ]; then
+              config="${{ inputs.config_path }}/$config"
+            fi
             source_dir=$path
             filtered=$( for file in ${CHANGED_FILES[@]}; do echo $file; done | { grep -E "^$source_dir/" || :; } )
             config_args=""
