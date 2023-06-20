@@ -73,11 +73,10 @@ jobs:
                 if [ ${{ inputs.is_strict }} == true ]; then
                   config_args+="--strict "
                 fi
-                config_args+="--config $config"
+                config_args+="--config $config "
+                config_args+="--reporter github-actions-logging"
                 echo "Run with args $config_args"
-                # https://stackoverflow.com/a/71571290
-                $SWIFTLINT_DIR/swiftlint $config_args $filtered \
-                    | sed -E 's/^(.*):([0-9]+):([0-9]+): (warning|error|[^:]+): (.*)/::\4 title=SwiftLint,file=\1,line=\2,col=\3::\5\n\1:\2:\3/'
+                $SWIFTLINT_DIR/swiftlint $config_args $filtered
             else
                 echo "Nothing to lint for $source_dir. Skip it"
             fi
