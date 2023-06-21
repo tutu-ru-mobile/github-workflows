@@ -105,6 +105,8 @@ jobs:
 
         echo "All done"
         if [ $is_ok == false ]; then
-          echo "There are some linter errors. Please, fix it and try again"
+          RED='\033[0;31m'
+          NC='\033[0m' # No Color
+          echo "${RED}There are some linter warnings/errors. Please, fix it and try again${NC}"
           exit 2
         fi
