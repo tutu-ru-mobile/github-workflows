@@ -53,9 +53,6 @@ jobs:
     - name: Run SwiftLint
       run: |
         SWIFTLINT_DIR="vendor/etc/bin/swiftlint"
-        RED='\033[0;31m'
-        YELLOW='\033[1;33m'
-        NC='\033[0m'
 
         url=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
         echo "Get file diffs from $url"
@@ -100,7 +97,9 @@ jobs:
                 lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered | { grep -v -E "\(todo\)$" || :; })
                 if [ -n "$lint_result" ]; then
                   is_ok=false
-                  echo "${YELLOW}$lint_result${NC}"
+                  if [ ${{ inputs.github_logging }} == false ]; then
+                    echo "::error $lint_result"
+                  fi
                 fi
             else
                 echo "Nothing to lint for $source_dir. Skip it"
@@ -109,8 +108,6 @@ jobs:
 
         echo "All done"
         if [ $is_ok == false ]; then
-          RED='\033[0;31m'
-          NC='\033[0m' # No Color
-          echo "${RED}There are some linter warnings/errors. Please, fix it and try again${NC}"
+          echo "There are some linter warnings/errors. Please, fix it and try again"
           exit 2
         fi
