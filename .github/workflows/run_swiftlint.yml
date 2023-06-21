@@ -62,6 +62,7 @@ jobs:
         fi
         
         paths_list=$(echo ${{ inputs.paths }} | awk -F ',' '{ for( i=1; i<=NF; i++ ) print $i }' )
+        is_ok=true
         for path in ${paths_list[@]}; do
             last_path=$(echo $path | awk -F "/" '{print $NF}')
             config=".$last_path.swiftlint.yml"
@@ -71,7 +72,7 @@ jobs:
             source_dir=$path
             filtered=$( for file in ${CHANGED_FILES[@]}; do echo $file; done | { grep -E "^$source_dir/" || :; } )
             config_args=""
-    
+
             if [ -n "$filtered" ]; then
                 echo "Run SwiftLint ($($SWIFTLINT_DIR/swiftlint --version)) using $config"
                 config_args=""
@@ -85,9 +86,18 @@ jobs:
                 config_args+="--reporter github-actions-logging"
 
                 echo "Run with args $config_args"
-                $SWIFTLINT_DIR/swiftlint $config_args $filtered\
-                | sed -E 's/^(.*):([0-9]+):([0-9]+): (warning|error|[^:]+): (.*)/::\4 title=SwiftLint,file=\1,line=\2,col=\3::\5\n\1:\2:\3/'
+                lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered)
+                if [ -n "$lint_result" ]; then
+                  is_ok=false
+                  echo "$lint_result"
+                fi
             else
                 echo "Nothing to lint for $source_dir. Skip it"
             fi
         done
+
+        echo "All done"
+        if [ $is_ok == false ]; then
+          echo "There are some linter errors. Please, fix it and try again"
+          exit 2
+        fi
