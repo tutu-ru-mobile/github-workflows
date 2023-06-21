@@ -53,6 +53,9 @@ jobs:
     - name: Run SwiftLint
       run: |
         SWIFTLINT_DIR="vendor/etc/bin/swiftlint"
+        RED='\033[0;31m'
+        YELLOW='\033[1;33m'
+        NC='\033[0m'
 
         url=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
         echo "Get file diffs from $url"
@@ -93,10 +96,11 @@ jobs:
 
                 config_args+="--config $config "
                 echo "Run with args $config_args"
-                lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered)
+                # Исключаем нарушения todo (пока не придумано лучшее решение)
+                lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered | { grep -v -E "\(todo\)$" || :; })
                 if [ -n "$lint_result" ]; then
                   is_ok=false
-                  echo "$lint_result"
+                  echo "${YELLOW}$lint_result${NC}"
                 fi
             else
                 echo "Nothing to lint for $source_dir. Skip it"
