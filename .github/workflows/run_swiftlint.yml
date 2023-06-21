@@ -13,6 +13,11 @@ on:
         default: false
         type: boolean
         required: true
+      is_quiet:
+          description: 'If true disable logging, like \"Linting...\" message'
+          default: true
+          type: boolean
+          required: false
       config_path:
         description: 'Custom base path for swiftlint configuration file. Config search will be performed on the root if path does not specified'
         default: ""
@@ -73,10 +78,15 @@ jobs:
                 if [ ${{ inputs.is_strict }} == true ]; then
                   config_args+="--strict "
                 fi
+                if [ ${{ inputs.is_quiet }} == true ]; then
+                  config_args+="--quiet "
+                fi
                 config_args+="--config $config "
                 config_args+="--reporter github-actions-logging"
+
                 echo "Run with args $config_args"
-                $SWIFTLINT_DIR/swiftlint $config_args $filtered
+                $SWIFTLINT_DIR/swiftlint $config_args $filtered\
+                | sed -E 's/^(.*):([0-9]+):([0-9]+): (warning|error|[^:]+): (.*)/::\4 title=SwiftLint,file=\1,line=\2,col=\3::\5\n\1:\2:\3/'
             else
                 echo "Nothing to lint for $source_dir. Skip it"
             fi
