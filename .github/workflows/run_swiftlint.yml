@@ -67,7 +67,7 @@ jobs:
         fi
         
         paths_list=$(echo ${{ inputs.paths }} | awk -F ',' '{ for( i=1; i<=NF; i++ ) print $i }' )
-        is_ok=true
+        linter_errors=""
         for path in ${paths_list[@]}; do
             last_path=$(echo $path | awk -F "/" '{print $NF}')
             config=".$last_path.swiftlint.yml"
@@ -96,10 +96,7 @@ jobs:
                 # Исключаем нарушения todo (пока не придумано лучшее решение)
                 lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered | { grep -v -E "\(todo\)$" || :; })
                 if [ -n "$lint_result" ]; then
-                  is_ok=false
-                  if [ ${{ inputs.github_logging }} == false ]; then
-                    echo "❌ $lint_result"
-                  fi
+                  linter_errors+="$lint_result\n"
                 fi
             else
                 echo "Nothing to lint for $source_dir. Skip it"
@@ -107,7 +104,12 @@ jobs:
         done
 
         echo "All done"
-        if [ $is_ok == false ]; then
+        if [ -n "$linter_errors" ]; then
           echo "There are some linter warnings/errors. Please, fix it and try again"
+          echo "$linter_errors" | while read line; do
+            if [ -n "$line" ]; then
+                echo "❌ $line"
+            fi
+          done
           exit 2
         fi
