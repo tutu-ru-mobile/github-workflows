@@ -98,7 +98,7 @@ jobs:
                 if [ -n "$lint_result" ]; then
                   is_ok=false
                   if [ ${{ inputs.github_logging }} == false ]; then
-                    echo "::error $lint_result"
+                    echo "❌ $lint_result"
                   fi
                 fi
             else
