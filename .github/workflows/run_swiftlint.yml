@@ -23,11 +23,6 @@ on:
         default: ""
         type: string
         required: false
-      github_logging:
-          description: 'If enabled uses github-actions-logging reporter'
-          default: false
-          type: boolean
-          required: false
     secrets:
       github_access_token:
         required: true
@@ -87,10 +82,8 @@ jobs:
                 if [ ${{ inputs.is_quiet }} == true ]; then
                   config_args+="--quiet "
                 fi
-                if [ ${{ inputs.github_logging }} == true ]; then
-                  config_args+="--reporter github-actions-logging "
-                fi
 
+                config_args+="--reporter emoji "
                 config_args+="--config $config "
                 echo "Run with args $config_args"
                 # Исключаем нарушения todo (пока не придумано лучшее решение)
@@ -105,11 +98,7 @@ jobs:
 
         echo "All done"
         if [ -n "$linter_errors" ]; then
-          echo "There are some linter warnings/errors. Please, fix it and try again"
-          echo "$linter_errors" | while read line; do
-            if [ -n "$line" ]; then
-                echo "❌ $line"
-            fi
-          done
+          echo "❗️ There are some linter warnings/errors. Please, fix it and try again ❗️"
+          echo "$linter_errors"
           exit 2
         fi
