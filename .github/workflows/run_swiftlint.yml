@@ -23,6 +23,11 @@ on:
         default: ""
         type: string
         required: false
+      github_logging:
+          description: 'If enabled uses github-actions-logging reporter'
+          default: false
+          type: boolean
+          required: false
     secrets:
       github_access_token:
         required: true
@@ -82,9 +87,11 @@ jobs:
                 if [ ${{ inputs.is_quiet }} == true ]; then
                   config_args+="--quiet "
                 fi
-                config_args+="--config $config "
-                config_args+="--reporter github-actions-logging"
+                if [ ${{ inputs.github_logging }} == true ]; then
+                  config_args+="--reporter github-actions-logging "
+                fi
 
+                config_args+="--config $config "
                 echo "Run with args $config_args"
                 lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered)
                 if [ -n "$lint_result" ]; then
