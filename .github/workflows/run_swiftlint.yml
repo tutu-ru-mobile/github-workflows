@@ -71,6 +71,7 @@ jobs:
             fi
             source_dir=$path
             filtered=$( for file in ${CHANGED_FILES[@]}; do echo $file; done | { grep -E "^$source_dir/" || :; } )
+            filtered=$( for file in ${filtered[@]}; do if [ -f $file ]; then echo $file; fi done )
             config_args=""
 
             if [ -n "$filtered" ]; then
