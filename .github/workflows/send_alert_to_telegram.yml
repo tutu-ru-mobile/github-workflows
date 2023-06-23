@@ -33,6 +33,7 @@ jobs:
     name: 'Send alert'
     runs-on: ubuntu-latest
     steps:
+      - run: echo "Start send"
       - if: ${{ inputs.send_status == 'failure' }}
         name: Telegram Notification
         run: |
