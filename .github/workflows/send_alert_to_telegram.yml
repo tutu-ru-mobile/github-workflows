@@ -13,6 +13,11 @@ on:
         required: true
         type: string
         default: 'Failure!'
+      send_status:
+        description: 'Current status'
+        required: false
+        type: string
+        default: 'success'
     secrets:
       telegram_token:
         required: true
@@ -28,14 +33,14 @@ jobs:
     name: 'Send alert'
     runs-on: ubuntu-latest
     steps:
-      - if: failure()
+      - if: ${{ inputs.send_status == "failure" }}
         name: Telegram Notification
         run: |
             curl -X POST "https://api.telegram.org/bot${{ secrets.telegram_token }}/sendMessage" \
             -d "chat_id=${{ secrets.telegram_chat_id }}\
             &text=❌ ${{ inputs.text_for_failure }} \
             , see logs here https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-      - if: success()
+      - if: ${{ inputs.send_status == "success" }}
         name: Telegram Notification
         run: |
             curl -X POST "https://api.telegram.org/bot${{ secrets.telegram_token }}/sendMessage" \
