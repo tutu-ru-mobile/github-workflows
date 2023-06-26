@@ -88,18 +88,10 @@ jobs:
                 config_args+="--config $config "
                 echo "Run with args $config_args"
                 # Исключаем нарушения todo (пока не придумано лучшее решение)
-                lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered | { grep -v -E "\(todo\)$" || :; })
-                if [ -n "$lint_result" ]; then
-                  linter_errors+="$lint_result\n"
-                fi
+                $SWIFTLINT_DIR/swiftlint $config_args $filtered
             else
                 echo "Nothing to lint for $source_dir. Skip it"
             fi
         done
 
         echo "All done"
-        if [ -n "$linter_errors" ]; then
-          echo "❗️ There are some linter warnings/errors. Please, fix it and try again ❗️"
-          echo "$linter_errors"
-          exit 2
-        fi
