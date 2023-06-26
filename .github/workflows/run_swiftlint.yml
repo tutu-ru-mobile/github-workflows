@@ -88,7 +88,7 @@ jobs:
                 config_args+="--config $config "
                 echo "Run with args $config_args"
                 # Исключаем нарушения todo (пока не придумано лучшее решение)
-                $SWIFTLINT_DIR/swiftlint $config_args $filtered
+                $SWIFTLINT_DIR/swiftlint $config_args $filtered | { grep -v -E "\(todo\)$" || :; }
             else
                 echo "Nothing to lint for $source_dir. Skip it"
             fi
