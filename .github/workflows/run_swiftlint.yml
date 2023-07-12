@@ -65,9 +65,14 @@ jobs:
         linter_errors=""
         for path in ${paths_list[@]}; do
             last_path=$(echo $path | awk -F "/" '{print $NF}')
-            config=".$last_path.swiftlint.yml"
+            origin_config=".$last_path.swiftlint.yml"
+            # Исключаем нарушения todo (пока не придумано лучшее решение)
+            temp_config=$origin_config.tmp
+            cp $origin_config $temp_config
+            echo -e "disabled_rules:\n    - todo" >> $temp_config
+
             if [ ! -z ${{ inputs.config_path }} ]; then
-              config="${{ inputs.config_path }}/$config"
+              config="${{ inputs.config_path }}/$temp_config"
             fi
             source_dir=$path
             filtered=$( for file in ${CHANGED_FILES[@]}; do echo $file; done | { grep -E "^$source_dir/" || :; } )
@@ -75,7 +80,7 @@ jobs:
             config_args=""
 
             if [ -n "$filtered" ]; then
-                echo "Run SwiftLint ($($SWIFTLINT_DIR/swiftlint --version)) using $config"
+                echo "Run SwiftLint ($($SWIFTLINT_DIR/swiftlint --version)) using $temp_config"
                 config_args=""
                 if [ ${{ inputs.is_strict }} == true ]; then
                   config_args+="--strict "
@@ -85,20 +90,21 @@ jobs:
                 fi
 
                 config_args+="--reporter emoji "
-                config_args+="--config $config "
+                config_args+="--config $temp_config "
                 echo "Run with args $config_args"
-                # Исключаем нарушения todo (пока не придумано лучшее решение)
-                lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered | { grep -v -E "\(todo\)$" || :; })
-                if [ -n "$lint_result" ]; then
+                lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered)
+                if [[ -n "$lint_result" ]]; then
                   linter_errors+="$lint_result\n"
                 fi
             else
                 echo "Nothing to lint for $source_dir. Skip it"
             fi
+
+            rm $temp_config
         done
 
         echo "All done"
-        if [ -n "$linter_errors" ]; then
+        if [[ -n "$linter_errors" ]]; then
           echo "❗️ There are some linter warnings/errors. Please, fix it and try again ❗️"
           echo "$linter_errors"
           exit 2
