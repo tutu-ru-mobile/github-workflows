@@ -70,6 +70,7 @@ jobs:
             temp_config=$origin_config.tmp
             cp $origin_config $temp_config
             echo "disabled_rules:\n    - todo" >> $temp_config
+            cat $temp_config
 
             if [ ! -z ${{ inputs.config_path }} ]; then
               config="${{ inputs.config_path }}/$temp_config"
