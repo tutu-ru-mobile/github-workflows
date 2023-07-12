@@ -66,14 +66,14 @@ jobs:
         for path in ${paths_list[@]}; do
             last_path=$(echo $path | awk -F "/" '{print $NF}')
             origin_config=".$last_path.swiftlint.yml"
+            if [ ! -z ${{ inputs.config_path }} ]; then
+              origin_config="${{ inputs.config_path }}/$origin_config"
+            fi
             # Исключаем нарушения todo (пока не придумано лучшее решение)
             temp_config=$origin_config.tmp
             cp $origin_config $temp_config
             echo -e "disabled_rules:\n    - todo" >> $temp_config
 
-            if [ ! -z ${{ inputs.config_path }} ]; then
-              temp_config="${{ inputs.config_path }}/$temp_config"
-            fi
             source_dir=$path
             filtered=$( for file in ${CHANGED_FILES[@]}; do echo $file; done | { grep -E "^$source_dir/" || :; } )
             filtered=$( for file in ${filtered[@]}; do if [ -f $file ]; then echo $file; fi done )
