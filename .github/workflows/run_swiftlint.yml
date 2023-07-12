@@ -72,7 +72,7 @@ jobs:
             echo -e "disabled_rules:\n    - todo" >> $temp_config
 
             if [ ! -z ${{ inputs.config_path }} ]; then
-              config="${{ inputs.config_path }}/$temp_config"
+              temp_config="${{ inputs.config_path }}/$temp_config"
             fi
             source_dir=$path
             filtered=$( for file in ${CHANGED_FILES[@]}; do echo $file; done | { grep -E "^$source_dir/" || :; } )
