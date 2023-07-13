@@ -65,14 +65,20 @@ jobs:
         linter_errors=""
         for path in ${paths_list[@]}; do
             last_path=$(echo $path | awk -F "/" '{print $NF}')
-            origin_config=".$last_path.swiftlint.yml"
+
+            origin_config_name=".$last_path.swiftlint.yml"
+            origin_config_path=$origin_config_name
             if [ ! -z ${{ inputs.config_path }} ]; then
               origin_config="${{ inputs.config_path }}/$origin_config"
             fi
+      
+            # - start temp config setup -
             # Исключаем нарушения todo (пока не придумано лучшее решение)
-            temp_config=$origin_config.tmp
+            temp_config=$origin_config_name.tmp
+            rm -f $temp_config
             touch $temp_config
-            echo -e "parent_config: $origin_config\n\ndisabled_rules:\n    - todo" >> $temp_config
+            echo -e "parent_config: $origin_config_path\n\ndisabled_rules:\n    - todo" >> $temp_config
+            # - done temp config setup -
 
             source_dir=$path
             filtered=$( for file in ${CHANGED_FILES[@]}; do echo $file; done | { grep -E "^$source_dir/" || :; } )
