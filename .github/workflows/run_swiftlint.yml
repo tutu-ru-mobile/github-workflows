@@ -69,7 +69,7 @@ jobs:
             origin_config_name=".$last_path.swiftlint.yml"
             origin_config_path=$origin_config_name
             if [ ! -z ${{ inputs.config_path }} ]; then
-              origin_config="${{ inputs.config_path }}/$origin_config"
+              origin_config_path="${{ inputs.config_path }}/$origin_config_path"
             fi
       
             # - start temp config setup -
