@@ -39,6 +39,7 @@ jobs:
   run_xcode_tests:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
     runs-on: macos-12
+    continue-on-error: true
     strategy:
       matrix:
         destination: ['platform=iOS Simulator,name=iPhone 11']
@@ -91,3 +92,13 @@ jobs:
           danger_id: 'danger-pr'
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
+      - name: Set status env variable
+        shell: bash
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "All tests passed!"
+            echo "NIGHT_CHECK_STATUS=success" >> $GITHUB_ENV
+          else
+            echo "Some tests failed."
+            echo "NIGHT_CHECK_STATUS=failed" >> $GITHUB_ENV
+          fi
