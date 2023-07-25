@@ -1,5 +1,8 @@
 name: Run Xcode tests
 
+env:
+  NIGHT_CHECK_STATUS: ""
+
 on:
   workflow_call:
     inputs:
@@ -113,5 +116,13 @@ jobs:
             echo "Some tests failed."
             echo "NIGHT_CHECK_STATUS=failed" >> $GITHUB_ENV
           fi
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: ${{ runner.temp }}/my-artifact
+          retention-days: 1
+
       - name: Check status env variable
         run: printenv
