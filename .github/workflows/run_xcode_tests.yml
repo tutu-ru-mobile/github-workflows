@@ -118,10 +118,10 @@ jobs:
           fi
           
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: my-artifact
-          path: ${{ runner.temp }}/my-artifact
+          path: my-artifact
           retention-days: 1
 
       - name: Check status env variable
