@@ -116,13 +116,6 @@ jobs:
             echo "Some tests failed."
             echo "NIGHT_CHECK_STATUS=failed" >> $GITHUB_ENV
           fi
-          
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: my-artifact
-          path: my-artifact
-          retention-days: 1
 
       - name: Check status env variable
         run: printenv
