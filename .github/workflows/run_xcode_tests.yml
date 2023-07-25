@@ -40,11 +40,11 @@ on:
 
 jobs:
   run_xcode_tests:
+    outputs:
+      JOB_TESTS_RESULT: ${{ steps.step1.outputs.TESTS_STATUS }}
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
     runs-on: macos-12
     continue-on-error: true
-    outputs:
-      output: ${{ steps.step.outputs.TESTS_STATUS }}
     strategy:
       matrix:
         destination: ['platform=iOS Simulator,name=iPhone 11']
@@ -108,7 +108,7 @@ jobs:
         with:
           name: xcresults
           path: output/derived_data/Logs/Test
-      - id: step
+      - id: step1
         run: |
           if [ $? -eq 0 ]; then
             echo "All tests passed!"
