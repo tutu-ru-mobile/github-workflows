@@ -97,17 +97,6 @@ jobs:
           danger_id: 'danger-pr'
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
-      - name: save tests_results
-        uses: actions/upload-artifact@v2
-        with:
-          name: tests_results
-          path: tests_results
-          retention-days: 10
-      - name: save xcresults
-        uses: actions/upload-artifact@v2
-        with:
-          name: xcresults
-          path: output/derived_data/Logs/Test
       - id: step1
         run: |
           if [ $? -eq 0 ]; then
@@ -117,5 +106,3 @@ jobs:
             echo "Some tests failed."
             echo "TESTS_STATUS=failed" >> $GITHUB_OUTPUT
           fi
-      - name: Check status env variable
-        run: printenv
