@@ -4,7 +4,7 @@ on:
   workflow_call:
     outputs:
       TESTS_STATUS:
-        value:  ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
+        value: ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
     inputs:
       is_run_xcodegen:
         description: '`true` is for run xcodegen'
