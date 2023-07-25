@@ -112,10 +112,10 @@ jobs:
         run: |
           if [ $? -eq 0 ]; then
             echo "All tests passed!"
-            echo "TESTS_STATUS=success" >> $GITHUB_ENV
+            echo "TESTS_STATUS=success" >> $GITHUB_OUTPUT
           else
             echo "Some tests failed."
-            echo "TESTS_STATUS=failed" >> $GITHUB_ENV
+            echo "TESTS_STATUS=failed" >> $GITHUB_OUTPUT
           fi
       - name: Check status env variable
         run: printenv
