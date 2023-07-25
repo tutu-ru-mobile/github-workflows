@@ -1,10 +1,10 @@
 name: Run Xcode tests
 
-env:
-  NIGHT_CHECK_STATUS: ""
-
 on:
   workflow_call:
+    outputs:
+      TESTS_STATUS:
+        value:  ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
     inputs:
       is_run_xcodegen:
         description: '`true` is for run xcodegen'
@@ -43,6 +43,8 @@ jobs:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
     runs-on: macos-12
     continue-on-error: true
+    outputs:
+      output: ${{ steps.step.outputs.TESTS_STATUS }}
     strategy:
       matrix:
         destination: ['platform=iOS Simulator,name=iPhone 11']
@@ -106,16 +108,14 @@ jobs:
         with:
           name: xcresults
           path: output/derived_data/Logs/Test
-      - name: Set status env variable
-        shell: bash
+      - id: step
         run: |
           if [ $? -eq 0 ]; then
             echo "All tests passed!"
-            echo "NIGHT_CHECK_STATUS=success" >> $GITHUB_ENV
+            echo "TESTS_STATUS=success" >> $GITHUB_ENV
           else
             echo "Some tests failed."
-            echo "NIGHT_CHECK_STATUS=failed" >> $GITHUB_ENV
+            echo "TESTS_STATUS=failed" >> $GITHUB_ENV
           fi
-
       - name: Check status env variable
         run: printenv
