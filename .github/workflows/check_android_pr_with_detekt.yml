@@ -45,7 +45,9 @@ jobs:
 
       - name: Run detekt
         if: success() || failure()
-        run: ./gradlew detekt
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: detekt
 
       - name: Setup ruby
         if: success() || failure()
