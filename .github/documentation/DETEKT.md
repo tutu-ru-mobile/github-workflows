@@ -1,9 +1,13 @@
 # Добавление в проект Detekt
 
 [Пример настройки detekt в проекте UserSpace](https://github.com/tutu-ru-mobile/android-user-space/blob/master/build.gradle.kts)
+
 [Файл правил в проекте UserSpace](https://github.com/tutu-ru-mobile/android-user-space/blob/master/config/detekt/detekt.yml)
+
 [Dangerfile в проекте UserSpace](https://github.com/tutu-ru-mobile/android-user-space/blob/master/Dangerfile)
+
 [Gemfile в проекте UserSpace](https://github.com/tutu-ru-mobile/android-user-space/blob/master/Gemfile)
+
 [Gemfile.lock в проекте UserSpace](https://github.com/tutu-ru-mobile/android-user-space/blob/master/Gemfile.lock)
 
 ## Подключение
