@@ -18,6 +18,8 @@ on:
         required: true
       maven_readonly_token:
         required: true
+      ssh_private_key:
+        required: false
       firebase_key:
         required: true
 

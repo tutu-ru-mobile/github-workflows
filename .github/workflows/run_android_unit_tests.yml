@@ -11,6 +11,8 @@ on:
     secrets:
       github_access_token:
         required: true
+      ssh_private_key:
+        required: false
       maven_readonly_token:
         required: true
 
