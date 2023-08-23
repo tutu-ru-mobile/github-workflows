@@ -11,27 +11,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cancel_previous_runs:
-    name: 'Cancel Previous Runs'
+  check_pr:
     runs-on: ubuntu-latest
+    if: github.event_name  == 'pull_request'
     steps:
-      - uses: styfle/cancel-workflow-action@0.11.0
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.11.0
         with:
           all_but_latest: true
           access_token: ${{ secrets.github_access_token }}
 
-  check_pr:
-    needs: cancel_previous_runs
-    name: 'Check pull request'
-    runs-on: ubuntu-latest
-    if: github.event_name  == 'pull_request'
-    steps:
       - name: Checkout repo
         uses: actions/checkout@v3.1.0
+
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7.6'
+
       - name: Install ruby dependencies
         run: |
           if test -f "Gemfile"; then
@@ -39,6 +36,7 @@ jobs:
             bundle config set --local path 'vendor/bundle'
             bundle install
           fi
+
       - uses: MeilCli/danger-action@v5
         continue-on-error: true
         with:
