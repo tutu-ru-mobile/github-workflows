@@ -16,20 +16,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cancel_previous_runs:
-    name: 'Cancel Previous Runs'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          all_but_latest: true
-          access_token: ${{ secrets.github_access_token }}
-
   check_pr:
-    needs: cancel_previous_runs
-    name: 'Check pull request'
     runs-on: ubuntu-latest
     steps:
+      - name: Cancel previous runs
+        runs-on: ubuntu-latest
+        steps:
+          - uses: styfle/cancel-workflow-action@0.11.0
+            with:
+              all_but_latest: true
+              access_token: ${{ secrets.github_access_token }}
+
       - name: Checkout repo
         uses: actions/checkout@v3.1.0
 
@@ -38,7 +35,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-          cache: 'gradle'
 
       - name: Run detekt
         if: success() || failure()
