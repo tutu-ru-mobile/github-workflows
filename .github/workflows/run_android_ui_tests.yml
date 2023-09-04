@@ -23,12 +23,12 @@ on:
         default: "assembleDebugAndroidTest"
         required: true
         description: "Gradle task to build target AndroidTest APK"
-      apk_build_path:
+      output_apk_build_path:
         type: string
         default: "sample_app/build/outputs/apk/debug/sample_app-debug.apk"
         required: true
         description: "Path to target app APK"
-      test_apk_build_path:
+      output_test_apk_build_path:
         type: string
         default: "sample_app/build/outputs/apk/androidTest/debug/sample_app-debug-androidTest.apk"
         required: true
@@ -88,13 +88,13 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.uploaded_apk_name }}
-          path: ${{ inputs.apk_build_path }}
+          path: ${{ inputs.output_apk_build_path }}
 
       - name: Upload androidTest APK
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.uploaded_test_apk_name }}
-          path: ${{ inputs.test_apk_build_path }}
+          path: ${{ inputs.output_test_apk_build_path }}
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
