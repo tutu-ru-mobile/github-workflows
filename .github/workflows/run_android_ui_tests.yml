@@ -33,6 +33,16 @@ on:
         default: "sample_app/build/outputs/apk/androidTest/debug/sample_app-debug-androidTest.apk"
         required: true
         description: "Path to target app APK"
+      uploaded_apk_name:
+        type: string
+        default: "sample_app-debug"
+        required: true
+        description: "Name of APK uploaded to artifacts"
+      uploaded_test_apk_name:
+        type: string
+        default: "sample_app-debug-androidTest"
+        required: true
+        description: "Name of test APK uploaded to artifacts"
     secrets:
       github_access_token:
         required: true
@@ -77,13 +87,13 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: sample_app-debug
+          name: ${{ inputs.uploaded_apk_name }}
           path: ${{ inputs.apk_build_path }}
 
       - name: Upload androidTest APK
         uses: actions/upload-artifact@v3
         with:
-          name: sample_app-debug-androidTest
+          name: ${{ inputs.uploaded_test_apk_name }}
           path: ${{ inputs.test_apk_build_path }}
 
       - name: Download artifacts
