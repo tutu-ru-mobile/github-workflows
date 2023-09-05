@@ -47,6 +47,9 @@ jobs:
       run: ./download_project_utils.sh
     - name: Run SwiftLint
       run: |
+        #!/bin/bash
+        set -o pipefail
+        
         SWIFTLINT_DIR="vendor/etc/bin/swiftlint"
 
         url=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
