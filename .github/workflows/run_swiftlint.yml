@@ -47,9 +47,6 @@ jobs:
       run: ./download_project_utils.sh
     - name: Run SwiftLint
       run: |
-        #!/bin/bash
-        set -o pipefail
-        
         SWIFTLINT_DIR="vendor/etc/bin/swiftlint"
 
         url=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
@@ -101,7 +98,7 @@ jobs:
                 config_args+="--reporter emoji "
                 config_args+="--config $temp_config "
                 echo "Run with args $config_args"
-                lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered)
+                lint_result=$($SWIFTLINT_DIR/swiftlint $config_args $filtered || true)
                 if [[ -n "$lint_result" ]]; then
                   linter_errors+="$lint_result\n"
                 fi
