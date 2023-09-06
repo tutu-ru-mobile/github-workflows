@@ -37,12 +37,12 @@ on:
         type: string
         default: "sample_app-debug"
         required: true
-        description: "Name of APK uploaded to artifacts"
+        description: "Name of the folder where app artifact was uploaded"
       uploaded_test_artifact_name:
         type: string
         default: "sample_app-debug-androidTest"
         required: true
-        description: "Name of test APK uploaded to artifacts"
+        description: "Name of thr folder where test artifact was uploaded"
     secrets:
       github_access_token:
         required: true
