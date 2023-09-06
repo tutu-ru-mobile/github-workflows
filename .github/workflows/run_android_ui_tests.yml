@@ -13,6 +13,36 @@ on:
         type: string
         default: "./ci/flank/pr_tests_config.yml"
         required: false
+      assemble_task:
+        type: string
+        default: "assembleDebug"
+        required: true
+        description: "Gradle task to build target app APK"
+      assemble_android_test_task:
+        type: string
+        default: "assembleDebugAndroidTest"
+        required: true
+        description: "Gradle task to build target AndroidTest APK"
+      output_apk_build_path:
+        type: string
+        default: "sample_app/build/outputs/apk/debug/sample_app-debug.apk"
+        required: true
+        description: "Path to target app APK"
+      output_test_apk_build_path:
+        type: string
+        default: "sample_app/build/outputs/apk/androidTest/debug/sample_app-debug-androidTest.apk"
+        required: true
+        description: "Path to target app APK"
+      uploaded_app_artifact_name:
+        type: string
+        default: "sample_app-debug"
+        required: true
+        description: "Name of the folder where app artifact was uploaded"
+      uploaded_test_artifact_name:
+        type: string
+        default: "sample_app-debug-androidTest"
+        required: true
+        description: "Name of thr folder where test artifact was uploaded"
     secrets:
       github_access_token:
         required: true
@@ -48,23 +78,23 @@ jobs:
       - name: Assemble
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: assembleDebug assembleDebugAndroidTest
+          arguments: ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}
           cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
 
-      - name: Upload sample debug APK
+      - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: sample_app-debug
-          path: sample_app/build/outputs/apk/debug/sample_app-debug.apk
+          name: ${{ inputs.uploaded_app_artifact_name }}
+          path: ${{ inputs.output_apk_build_path }}
 
       - name: Upload androidTest APK
         uses: actions/upload-artifact@v3
         with:
-          name: sample_app-debug-androidTest
-          path: sample_app/build/outputs/apk/androidTest/debug/sample_app-debug-androidTest.apk
+          name: ${{ inputs.uploaded_test_artifact_name }}
+          path: ${{ inputs.output_test_apk_build_path }}
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
