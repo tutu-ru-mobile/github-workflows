@@ -16,32 +16,32 @@ on:
       assemble_task:
         type: string
         default: "assembleDebug"
-        required: true
+        required: false
         description: "Gradle task to build target app APK"
       assemble_android_test_task:
         type: string
         default: "assembleDebugAndroidTest"
-        required: true
+        required: false
         description: "Gradle task to build target AndroidTest APK"
       output_apk_build_path:
         type: string
         default: "sample_app/build/outputs/apk/debug/sample_app-debug.apk"
-        required: true
+        required: false
         description: "Path to target app APK"
       output_test_apk_build_path:
         type: string
         default: "sample_app/build/outputs/apk/androidTest/debug/sample_app-debug-androidTest.apk"
-        required: true
+        required: false
         description: "Path to target app APK"
       uploaded_app_artifact_name:
         type: string
         default: "sample_app-debug"
-        required: true
+        required: false
         description: "Name of the folder where app artifact was uploaded"
       uploaded_test_artifact_name:
         type: string
         default: "sample_app-debug-androidTest"
-        required: true
+        required: false
         description: "Name of thr folder where test artifact was uploaded"
     secrets:
       github_access_token:
