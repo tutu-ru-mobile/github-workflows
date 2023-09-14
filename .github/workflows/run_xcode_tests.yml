@@ -86,6 +86,12 @@ jobs:
            destination: ${{ matrix.destination }}
       - name: Remove ci tag
         run: rm .ci_tag
+      - name: Archive xcresults
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{ inputs.xcresult_name }}
+          retention-days: 3
+
       - if: ${{ inputs.is_collect_issues }}
         continue-on-error: true
         name: Collect issues
