@@ -89,7 +89,7 @@ jobs:
       - name: Archive xcresults
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ inputs.xcresult_name }}
+          path: ${{ inputs.xcresult_name }}.xcresult
           retention-days: 3
 
       - if: ${{ inputs.is_collect_issues }}
