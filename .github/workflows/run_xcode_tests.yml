@@ -43,7 +43,7 @@ jobs:
     outputs:
       JOB_TESTS_RESULT: ${{ steps.step1.outputs.TESTS_STATUS }}
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
-    runs-on: macos-12
+    runs-on: MilitaryPolice
     continue-on-error: true
     strategy:
       matrix:
