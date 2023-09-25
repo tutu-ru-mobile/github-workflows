@@ -95,17 +95,6 @@ jobs:
           path: ${{ inputs.xcresult_name }}
           name: checkout.xcresult
           retention-days: 3
-      - name: End Time
-        id: endtime
-        run: echo "::set-output name=time::$(date +"%Y-%m-%dT%H:%M:%S%z")"
-        
-      - name: Calculate execution time
-        run: |
-          start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.starttime.outputs.time }}" +%s)
-          end=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.endtime.outputs.time }}" +%s)
-          runtime=$((end-start))
-          echo "Execution time: $runtime seconds"
-
       - if: ${{ inputs.is_collect_issues }}
         continue-on-error: true
         name: Collect issues
@@ -126,4 +115,15 @@ jobs:
             echo "Some tests failed."
             echo "TESTS_STATUS=failed" >> $GITHUB_OUTPUT
           fi
-      
+      - name: End Time
+        id: endtime
+        run: echo "::set-output name=time::$(date +"%Y-%m-%dT%H:%M:%S%z")"
+      - name: Calculate execution time
+        run: |
+          start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.starttime.outputs.time }}" +%s)
+          end=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.endtime.outputs.time }}" +%s)
+          runtime=$((end-start))
+          hours=$((runtime / 3600))
+          minutes=$(( (runtime % 3600) / 60))
+          seconds=$((runtime % 60))
+          echo "Execution time: $hours hours $minutes minutes $seconds seconds"
