@@ -136,7 +136,6 @@ jobs:
           hours=$((runtime / 3600))
           minutes=$(( (runtime % 3600) / 60))
           seconds=$((runtime % 60))
-          echo "Затраченное время: $hours ч $minutes м $seconds с"
           echo "hours=${hours}" >> $GITHUB_OUTPUT
           echo "minutes=${minutes}" >> $GITHUB_OUTPUT
           echo "seconds=${seconds}" >> $GITHUB_OUTPUT
