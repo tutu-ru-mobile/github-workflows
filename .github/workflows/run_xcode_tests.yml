@@ -5,11 +5,11 @@ on:
     outputs:
       TESTS_STATUS:
         value: ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
-      HOURS:
+      hours:
         value: ${{ jobs.run_xcode_tests.outputs.hours }}
-      MINUTES:
+      minutes:
         value: ${{ jobs.run_xcode_tests.outputs.minutes }}
-      SECONDS:
+      seconds:
         value: ${{ jobs.run_xcode_tests.outputs.seconds }}
     inputs:
       is_run_xcodegen:
@@ -48,9 +48,9 @@ jobs:
   run_xcode_tests:
     outputs:
       JOB_TESTS_RESULT: ${{ steps.step1.outputs.TESTS_STATUS }}
-      hours: ${{ steps.runtime.outputs.HOURS }}
-      minutes: ${{ steps.runtime.outputs.MINUTES }}
-      seconds: ${{ steps.runtime.outputs.SECONDS }}
+      hours: ${{ steps.runtime.outputs.hours }}
+      minutes: ${{ steps.runtime.outputs.minutes }}
+      seconds: ${{ steps.runtime.outputs.seconds }}
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
     runs-on: MilitaryPolice
     continue-on-error: true
@@ -137,6 +137,6 @@ jobs:
           minutes=$(( (runtime % 3600) / 60))
           seconds=$((runtime % 60))
           echo "Затраченное время: $hours ч $minutes м $seconds с"
-          echo "${hours}" >> $GITHUB_OUTPUT
-          echo "${minutes}" >> $GITHUB_OUTPUT
-          echo "${seconds}" >> $GITHUB_OUTPUT
+          echo "hours=${hours}" >> $GITHUB_OUTPUT
+          echo "minutes=${minutes}" >> $GITHUB_OUTPUT
+          echo "seconds=${seconds}" >> $GITHUB_OUTPUT
