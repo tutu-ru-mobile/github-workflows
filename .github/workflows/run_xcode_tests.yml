@@ -61,7 +61,7 @@ jobs:
     steps:
       - name: Start time
         id: starttime
-        run: echo "::set-output name=time::$(date +"%Y-%m-%dT%H:%M:%S%z")"
+        run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")"
       - name: Checkout repository
         uses: actions/checkout@v3.1.0
       - name: Setup SSH
@@ -127,7 +127,7 @@ jobs:
           fi
       - name: End Time
         id: endtime
-        run: echo "::set-output name=time::$(date +"%Y-%m-%dT%H:%M:%S%z")"
+        run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")" >> $GITHUB_OUTPUT
       - name: Calculate execution time
         id: runtime
         run: |
