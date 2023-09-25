@@ -5,6 +5,12 @@ on:
     outputs:
       TESTS_STATUS:
         value: ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
+      hours:
+        value: ${{ jobs.run_xcode_tests.outputs.hours }}
+      minutes:
+        value: ${{ jobs.run_xcode_tests.outputs.minutes }}
+      seconds:
+        value: ${{ jobs.run_xcode_tests.outputs.seconds }}
     inputs:
       is_run_xcodegen:
         description: '`true` is for run xcodegen'
@@ -42,6 +48,9 @@ jobs:
   run_xcode_tests:
     outputs:
       JOB_TESTS_RESULT: ${{ steps.step1.outputs.TESTS_STATUS }}
+      hours: ${{ steps.runtime.outputs.hours }}
+      minutes: ${{ steps.runtime.outputs.minutes }}
+      seconds: ${{ steps.runtime.outputs.seconds }}
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
     runs-on: macos-12
     continue-on-error: true
@@ -50,6 +59,9 @@ jobs:
         destination: ['platform=iOS Simulator,name=iPhone 11']
         swift: ["5.5"]
     steps:
+      - name: Start time
+        id: starttime
+        run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")" >> $GITHUB_OUTPUT
       - name: Checkout repository
         uses: actions/checkout@v3.1.0
       - name: Setup SSH
@@ -90,6 +102,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: ${{ inputs.xcresult_name }}
+          name: ${{ inputs.xcresult_name }}
           retention-days: 3
 
       - if: ${{ inputs.is_collect_issues }}
@@ -112,3 +125,18 @@ jobs:
             echo "Some tests failed."
             echo "TESTS_STATUS=failed" >> $GITHUB_OUTPUT
           fi
+      - name: End Time
+        id: endtime
+        run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")" >> $GITHUB_OUTPUT
+      - name: Calculate execution time
+        id: runtime
+        run: |
+          start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.starttime.outputs.time }}" +%s)
+          end=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.endtime.outputs.time }}" +%s)
+          runtime=$((end-start))
+          hours=$((runtime / 3600))
+          minutes=$(( (runtime % 3600) / 60))
+          seconds=$((runtime % 60))
+          echo "hours=${hours}" >> $GITHUB_OUTPUT
+          echo "minutes=${minutes}" >> $GITHUB_OUTPUT
+          echo "seconds=${seconds}" >> $GITHUB_OUTPUT
