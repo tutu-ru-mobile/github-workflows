@@ -50,6 +50,8 @@ jobs:
         destination: ['platform=iOS Simulator,name=iPhone 11']
         swift: ["5.5"]
     steps:
+      - name: Job start time
+        run: echo "Job started at $(date)"
       - name: Checkout repository
         uses: actions/checkout@v3.1.0
       - name: Setup SSH
@@ -90,8 +92,17 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: ${{ inputs.xcresult_name }}
+          name: checkout.xcresult
           retention-days: 3
-
+      - name: Job end time
+        run: echo "Job ended at $(date)"
+        id: endtime
+      - name: Calculate execution time
+        run: |
+            start=$(date -d"${{ github.event.workflow_run.created_at }}" +%s)
+            end=$(date -d"${{ steps.endtime.outputs.time }}" +%s)
+            runtime=$((end-start))
+            echo "Job execution time: $runtime seconds"
       - if: ${{ inputs.is_collect_issues }}
         continue-on-error: true
         name: Collect issues
@@ -112,3 +123,4 @@ jobs:
             echo "Some tests failed."
             echo "TESTS_STATUS=failed" >> $GITHUB_OUTPUT
           fi
+      
