@@ -61,7 +61,7 @@ jobs:
     steps:
       - name: Start time
         id: starttime
-        run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")"
+        run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")" >> $GITHUB_OUTPUT
       - name: Checkout repository
         uses: actions/checkout@v3.1.0
       - name: Setup SSH
