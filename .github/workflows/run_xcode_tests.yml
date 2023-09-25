@@ -97,12 +97,13 @@ jobs:
       - name: Job end time
         run: echo "Job ended at $(date)"
         id: endtime
+    
       - name: Calculate execution time
         run: |
-            start=$(date -d"${{ github.event.workflow_run.created_at }}" +%s)
-            end=$(date -d"${{ steps.endtime.outputs.time }}" +%s)
-            runtime=$((end-start))
-            echo "Job execution time: $runtime seconds"
+          start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ github.event.workflow_run.created_at }}" +%s)
+          end=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.endtime.outputs.time }}" +%s)
+          runtime=$((end-start))
+          echo "Job execution time: $runtime seconds"
       - if: ${{ inputs.is_collect_issues }}
         continue-on-error: true
         name: Collect issues
