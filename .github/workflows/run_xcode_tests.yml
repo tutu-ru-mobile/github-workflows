@@ -5,6 +5,12 @@ on:
     outputs:
       TESTS_STATUS:
         value: ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
+      HOURS:
+        value: ${{ jobs.run_xcode_tests.outputs.hours }}
+      MINUTES:
+        value: ${{ jobs.run_xcode_tests.outputs.minutes }}
+      SECONDS:
+        value: ${{ jobs.run_xcode_tests.outputs.seconds }}
     inputs:
       is_run_xcodegen:
         description: '`true` is for run xcodegen'
@@ -131,6 +137,6 @@ jobs:
           minutes=$(( (runtime % 3600) / 60))
           seconds=$((runtime % 60))
           echo "Затраченное время: $hours ч $minutes м $seconds с"
-          echo "::set-output name=hours::${hours}"
-          echo "::set-output name=minutes::${minutes}"
-          echo "::set-output name=seconds::${seconds}"
+          echo "${hours}" >> $GITHUB_OUTPUT
+          echo "${minutes}" >> $GITHUB_OUTPUT
+          echo "${seconds}" >> $GITHUB_OUTPUT
