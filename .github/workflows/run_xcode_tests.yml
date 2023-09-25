@@ -5,6 +5,12 @@ on:
     outputs:
       TESTS_STATUS:
         value: ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
+      HOURS:
+        value: ${{ steps.runtime.outputs.hours }}
+      MINUTES:
+        value: ${{ steps.runtime.outputs.minutes }}
+      SECONDS:
+        value: ${{ steps.runtime.outputs.seconds }}
     inputs:
       is_run_xcodegen:
         description: '`true` is for run xcodegen'
@@ -127,3 +133,6 @@ jobs:
           minutes=$(( (runtime % 3600) / 60))
           seconds=$((runtime % 60))
           echo "Execution time: $hours hours $minutes minutes $seconds seconds"
+          echo "::set-output name=hours::${hours}"
+          echo "::set-output name=minutes::${minutes}"
+          echo "::set-output name=seconds::${seconds}"
