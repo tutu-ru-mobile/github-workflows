@@ -5,12 +5,9 @@ on:
     outputs:
       TESTS_STATUS:
         value: ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
-      HOURS:
-        value: ${{ steps.runtime.outputs.hours }}
-      MINUTES:
-        value: ${{ steps.runtime.outputs.minutes }}
-      SECONDS:
-        value: ${{ steps.runtime.outputs.seconds }}
+      hours: ${{ steps.runtime.outputs.hours }}
+      minutes: ${{ steps.runtime.outputs.minutes }}
+      seconds: ${{ steps.runtime.outputs.seconds }}
     inputs:
       is_run_xcodegen:
         description: '`true` is for run xcodegen'
@@ -125,6 +122,7 @@ jobs:
         id: endtime
         run: echo "::set-output name=time::$(date +"%Y-%m-%dT%H:%M:%S%z")"
       - name: Calculate execution time
+        id: runtime
         run: |
           start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.starttime.outputs.time }}" +%s)
           end=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.endtime.outputs.time }}" +%s)
@@ -132,7 +130,7 @@ jobs:
           hours=$((runtime / 3600))
           minutes=$(( (runtime % 3600) / 60))
           seconds=$((runtime % 60))
-          echo "Execution time: $hours hours $minutes minutes $seconds seconds"
+          echo "Затраченное время: $hours ч $minutes м $seconds с"
           echo "::set-output name=hours::${hours}"
           echo "::set-output name=minutes::${minutes}"
           echo "::set-output name=seconds::${seconds}"
