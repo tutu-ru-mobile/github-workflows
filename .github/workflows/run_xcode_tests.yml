@@ -5,9 +5,6 @@ on:
     outputs:
       TESTS_STATUS:
         value: ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
-      hours: ${{ steps.runtime.outputs.hours }}
-      minutes: ${{ steps.runtime.outputs.minutes }}
-      seconds: ${{ steps.runtime.outputs.seconds }}
     inputs:
       is_run_xcodegen:
         description: '`true` is for run xcodegen'
@@ -45,6 +42,9 @@ jobs:
   run_xcode_tests:
     outputs:
       JOB_TESTS_RESULT: ${{ steps.step1.outputs.TESTS_STATUS }}
+      hours: ${{ steps.runtime.outputs.hours }}
+      minutes: ${{ steps.runtime.outputs.minutes }}
+      seconds: ${{ steps.runtime.outputs.seconds }}
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
     runs-on: MilitaryPolice
     continue-on-error: true
