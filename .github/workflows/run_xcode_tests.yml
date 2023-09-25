@@ -52,7 +52,7 @@ jobs:
       minutes: ${{ steps.runtime.outputs.minutes }}
       seconds: ${{ steps.runtime.outputs.seconds }}
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
-    runs-on: MilitaryPolice
+    runs-on: macos-12
     continue-on-error: true
     strategy:
       matrix:
@@ -102,8 +102,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: ${{ inputs.xcresult_name }}
-          name: checkout.xcresult
+          name: ${{ inputs.xcresult_name }}
           retention-days: 3
+
       - if: ${{ inputs.is_collect_issues }}
         continue-on-error: true
         name: Collect issues
