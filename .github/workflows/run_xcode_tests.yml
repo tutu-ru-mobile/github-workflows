@@ -52,7 +52,7 @@ jobs:
       minutes: ${{ steps.runtime.outputs.minutes }}
       seconds: ${{ steps.runtime.outputs.seconds }}
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
-    runs-on: macos-12
+    runs-on: MilitaryPolice
     continue-on-error: true
     strategy:
       matrix:
