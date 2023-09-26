@@ -98,7 +98,9 @@ jobs:
            destination: ${{ matrix.destination }}
       - name: Remove ci tag
         run: rm .ci_tag
-      - name: Archive xcresults
+      - if: always()
+        continue-on-error: true
+        name: Archive xcresults
         uses: actions/upload-artifact@v3
         with:
           path: ${{ inputs.xcresult_name }}
@@ -125,10 +127,14 @@ jobs:
             echo "Some tests failed."
             echo "TESTS_STATUS=failed" >> $GITHUB_OUTPUT
           fi
-      - name: End Time
+      - if: always()
+        continue-on-error: true
+        name: End Time
         id: endtime
         run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")" >> $GITHUB_OUTPUT
-      - name: Calculate execution time
+      - if: always()
+        continue-on-error: true
+        name: Calculate execution time
         id: runtime
         run: |
           start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.starttime.outputs.time }}" +%s)
