@@ -1,4 +1,4 @@
-name: Check pull request
+name: Check pull request android
 
 on:
   workflow_call:
