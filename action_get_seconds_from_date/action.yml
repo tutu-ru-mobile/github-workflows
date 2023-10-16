@@ -23,9 +23,10 @@ runs:
     - id: calculations
       shell: bash
       run: |
+          start_date=${{ inputs.from-date }}
           now_date=$(date +%s)
 
-          runtime=$((now_date-${{inputs.from_date}}))
+          runtime=$((now_date-start_date))
 
           hours=$((runtime / 3600))
           minutes=$(( (runtime % 3600) / 60))
@@ -34,4 +35,3 @@ runs:
           echo "hours-value=${hours}" >> $GITHUB_OUTPUT
           echo "minutes-value=${minutes}" >> $GITHUB_OUTPUT
           echo "seconds-value=${seconds}" >> $GITHUB_OUTPUT
-
