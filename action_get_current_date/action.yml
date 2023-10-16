@@ -21,4 +21,4 @@ runs:
 
         seconds_from_epoch=$(date +%s)
         echo ${seconds_from_epoch}
-        echo "seconds-from-epoch=${seconds_from_epoch}" >> $GITHUB_OUTPUT
+        echo "seconds-from-epoch-value=${seconds_from_epoch}" >> $GITHUB_OUTPUT
