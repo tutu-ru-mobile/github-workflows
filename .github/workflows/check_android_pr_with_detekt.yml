@@ -17,15 +17,13 @@ concurrency:
 
 jobs:
   check_pr:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Cancel previous runs
-        runs-on: ubuntu-20.04
-        steps:
-          - uses: styfle/cancel-workflow-action@0.11.0
-            with:
-              all_but_latest: true
-              access_token: ${{ secrets.github_access_token }}
+        uses: styfle/cancel-workflow-action@0.11.0
+          with:
+            all_but_latest: true
+            access_token: ${{ secrets.github_access_token }}
 
       - name: Checkout repo
         uses: actions/checkout@v3.1.0
