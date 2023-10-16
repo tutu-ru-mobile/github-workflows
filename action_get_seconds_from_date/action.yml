@@ -7,14 +7,20 @@ inputs:
     required: true
 
 outputs:
+  hours-from-date:
+    description: "Seconds from input.from-date"
+    value: ${{ steps.calculations.outputs.hours-value }}
+  minutes-from-date:
+    description: "Seconds from input.from-date"
+    value: ${{ steps.calculations.outputs.minutes-value }}
   seconds-from-date:
     description: "Seconds from input.from-date"
-    value: ${{ steps.seconds-from-date.outputs.seconds-value }}
+    value: ${{ steps.calculations.outputs.seconds-value }}
 
 runs:
   using: "composite"
   steps:
-    - id: seconds-from-date
+    - id: calculations
       shell: bash
       run: |
           now_date=$(date +"%Y-%m-%dT%H:%M:%S%z")
@@ -22,7 +28,12 @@ runs:
           start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ inputs.from_date }}" +%s)
           end=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${now_date}" +%s)
           runtime=$((end-start))
+
+          hours=$((runtime / 3600))
+          minutes=$(( (runtime % 3600) / 60))
           seconds=$((runtime % 60))
+
+          echo "hours-value=${hours}" >> $GITHUB_OUTPUT
+          echo "minutes-value=${minutes}" >> $GITHUB_OUTPUT
           echo "seconds-value=${seconds}" >> $GITHUB_OUTPUT
-      
 
