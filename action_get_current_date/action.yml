@@ -5,6 +5,9 @@ outputs:
   current-date:
     description: "Current date"
     value: ${{ steps.current-date.outputs.date-value }}
+  seconds-from-epoch:
+    description: "Current seconds from epoch"
+    value: ${{ steps.current-date.outputs.seconds-from-epoch-value }}
 
 runs:
   using: "composite"
@@ -15,3 +18,7 @@ runs:
         now_date=$(date +"%Y-%m-%dT%H:%M:%S%z")
         echo ${now_date}
         echo "date-value=${now_date}" >> $GITHUB_OUTPUT
+
+        seconds_from_epoch=$(date +%s)
+        echo ${seconds_from_epoch}
+        echo "seconds-from-epoch=${seconds_from_epoch}" >> $GITHUB_OUTPUT

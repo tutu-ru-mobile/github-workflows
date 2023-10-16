@@ -3,7 +3,7 @@ description: "Get seconds from date"
 
 inputs:
   from-date:
-    description: "Date in format %Y-%m-%dT%H:%M:%S%z"
+    description: "Date in seconds from epoch"
     required: true
 
 outputs:
@@ -23,15 +23,13 @@ runs:
     - id: calculations
       shell: bash
       run: |
-          now_date=$(date +"%Y-%m-%dT%H:%M:%S%z")
+          now_date=$(date +%s)
 
-          start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ inputs.from-date }}" +%s)
-          end=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${now_date}" +%s)
-          runtime=$((end-start))
+          runtime=$((now_date-${{inputs.from_date}}))
 
           hours=$((runtime / 3600))
           minutes=$(( (runtime % 3600) / 60))
-          seconds=$((runtime % 60))
+          seconds=$((runtime))
 
           echo "hours-value=${hours}" >> $GITHUB_OUTPUT
           echo "minutes-value=${minutes}" >> $GITHUB_OUTPUT
