@@ -15,7 +15,7 @@ jobs:
       - id: seconds-from-date
         uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
         with:
-          from-date: ${{steps.current-date.outputs.current-date}}
+          from-date: ${{ steps.current-date.outputs.current-date }}
       - run: echo ${{ steps.seconds-from-date.outputs.seconds-from-date }}
         shell: bash
             
