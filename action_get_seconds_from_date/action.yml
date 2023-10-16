@@ -1,0 +1,28 @@
+name: "Get seconds from date"
+description: "Get seconds from date"
+
+inputs:
+  from-date:
+    description: "Date in format %Y-%m-%dT%H:%M:%S%z"
+    required: true
+
+outputs:
+  seconds-from-date:
+    description: "Seconds from input.from-date"
+    value: ${{ steps.seconds-from-date.outputs.seconds-value }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: seconds-from-date
+      shell: bash
+      run: |
+          now_date=$(date +"%Y-%m-%dT%H:%M:%S%z")
+
+          start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ inputs.from_date }}" +%s)
+          end=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${now_date}" +%s)
+          runtime=$((end-start))
+          seconds=$((runtime % 60))
+          echo "seconds-value=${seconds}" >> $GITHUB_OUTPUT
+      
+

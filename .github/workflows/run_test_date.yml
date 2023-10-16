@@ -1,0 +1,21 @@
+name: "Run tests with date"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    name: A job to test dates
+    steps:
+      - id: current-date
+        uses: tutu-ru-mobile/github-workflows/action-get-current-date@feature/get_seconds_from
+      - run: sleep 20
+        shell: bash
+      - id: seconds-from-date
+        uses: tutu-ru-mobile/github-workflows/action-get-seconds-from-date@feature/get_seconds_from
+        with:
+          from-date: ${{steps.current-date.outputs.current-date}}
+      - run: echo ${{ steps.seconds-from-date.outputs.seconds-from-date }}
+        shell: bash
+            

@@ -1,0 +1,18 @@
+name: "Get current date"
+description: "Date in format %Y-%m-%dT%H:%M:%S%z"
+
+outputs:
+  current-date:
+    description: "Current date"
+    value: ${{ steps.current-date.outputs.date-value }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: current-date
+      shell: bash
+      run: |
+          now_date=$(date +"%Y-%m-%dT%H:%M:%S%z")
+          echo "date-value=${now_date}" >> $GITHUB_OUTPUT
+      
+
