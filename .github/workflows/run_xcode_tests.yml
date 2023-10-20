@@ -99,12 +99,15 @@ jobs:
       - name: Remove ci tag
         run: rm .ci_tag
       - if: always()
+        name: Prepare xcresults
+        run: zip -r logs.zip ${{ inputs.xcresult_name }} || echo "Nothing to archive"
+      - if: always()
         continue-on-error: true
         name: Archive xcresults
         uses: actions/upload-artifact@v3
         with:
           path: ${{ inputs.xcresult_name }}
-          name: ${{ inputs.xcresult_name }}
+          name: logs.zip
           retention-days: 3
 
       - if: ${{ inputs.is_collect_issues }}
