@@ -52,6 +52,11 @@ on:
         required: true
       firebase_key:
         required: true
+      telemetry_url:
+        required: false
+      telemetry_slug:
+        required: false
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -62,6 +67,8 @@ jobs:
     runs-on:
       group: ubuntu-larger
     steps:
+      - id: pipeline-start-date
+        uses: tutu-ru-mobile/github-workflows/action_get_current_date@main
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.11.0
         with:
@@ -106,3 +113,18 @@ jobs:
           service_account: ${{ secrets.firebase_key }}
           platform: android
           flank_configuration_file: ${{ inputs.flank_configuration_file }}
+
+      - id: seconds-from-date
+        name: Pipeline duration
+        uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
+        with:
+          from-date: ${{ steps.pipeline-start-date.outputs.seconds-from-epoch }}
+
+      - uses: tutu-ru-mobile/send-ci-telemetry@main
+        with:
+          url: ${{ secrets.telemetry_url }}
+          slug: ${{ secrets.telemetry_slug }}
+          metrics_name: "test_time_duration"
+          metrics_value: ${{ steps.seconds-from-date.outputs.seconds-from-date }}
+          metrics_labels: |
+            {"os": "android", "app": "${{ inputs.uploaded_app_artifact_name }}", "test_type": "ui"}
