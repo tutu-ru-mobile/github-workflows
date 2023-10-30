@@ -34,13 +34,13 @@ jobs:
           access_token: ${{ secrets.github_access_token }}
   bump:
     needs: cancel_previous_runs
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.1.0
         with:
           ref: main
-      - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@v1.0.5
+      - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@xcode15
       - uses: tutu-ru-mobile/github-workflows/action_install_dependencies@v1.0.5
       - name: Setup SSH
         uses: tutu-ru-mobile/github-action-ssh-agent@v1.1.0-tutu

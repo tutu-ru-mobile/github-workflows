@@ -52,11 +52,11 @@ jobs:
       minutes: ${{ steps.runtime.outputs.minutes }}
       seconds: ${{ steps.runtime.outputs.seconds }}
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
-    runs-on: macos-12
+    runs-on: macos-13
     continue-on-error: true
     strategy:
       matrix:
-        destination: ['platform=iOS Simulator,name=iPhone 11']
+        destination: ['platform=iOS Simulator,name=iPhone 14 Pro']
         swift: ["5.5"]
     steps:
       - name: Start time
@@ -70,7 +70,7 @@ jobs:
           ssh-private-key: ${{ secrets.ssh_private_key }}
       - name: Change origin to ssh link
         run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
-      - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@v1.0.5
+      - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@xcode15
       - uses: tutu-ru-mobile/github-workflows/action_install_dependencies@v1.0.5
       - uses: tutu-ru-mobile/github-workflows/action_restore_cache_cocoapods@v1.0.5
       - if: ${{ inputs.is_run_xcodegen }}
