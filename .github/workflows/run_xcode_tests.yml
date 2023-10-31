@@ -83,11 +83,14 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 90
         run: |
+            device_udid=$(xcrun simctl create iPhone-14-Pro com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro com.apple.CoreSimulator.SimRuntime.iOS-17-0)
+            xcrun simctl boot $device_udid
+
             xcodebuild clean test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
-            -destination "${destination}" \
+            -destination "id=$device_udid" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
             -test-iterations 5 \
