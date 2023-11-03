@@ -63,27 +63,10 @@ jobs:
         fi
 
         PATHS_LIST=""
-        
+
         # Чтобы слить в мастер и запустить плавную перекатку на новый флоу
         if [ -z ${{ inputs.paths }} ]; then
-          # - Этап поиска папок для линта
-
-          # Получаем список уникальных папок, в которых поменялись swift-файлы
-          FOLDERS=$( for file in ${CHANGED_FILES[@]}; do echo $file | cut -d '/' -f1; done | grep -E "^\w*$" | uniq )
-
-          # Устанавливаем папку поиска, если она есть. Иначе поиск будет происходить в рутовой папке без проверки вложенных папок
-          CONFIG_SEARCH_FOLDER="."
-          if [ ! -z ${{ inputs.config_path }} ]; then CONFIG_SEARCH_FOLDER=${{ inputs.config_path }}; fi
-
-          # 1. Получаем из папки с конфигами полный список конфигов, которые удобавлетворяют шаблону "*.swiftlint.yml"
-          # 2. Получает NAME из строки *NAME.swiftlint.yml
-          # 3. Оставляем варианты без специальных символов (например, отправсывает /Core/)
-          NAMES=$(find $CONFIG_SEARCH_FOLDER -maxdepth 1 -type f -path "*.swiftlint.yml" | sed 's/.*\.\(.*\)\.swiftlint\.yml/\1/' | grep -E "^\w*$")
-
-          # Ищем папки с назанием NAME из предыдущего шага. Все .swift файлы в этой папке будут линтоваться с помощью соответствующего конфига
-          PATHS_LIST=$( for file in ${NAMES[@]}; do find $FOLDERS -type d -path "*/$file" | head -n 1; done )
-
-          # - Конец этапа поиска папок для линта
+          PATHS_LIST=$( for file in ${CHANGED_FILES[@]}; do echo $file | cut -d '/' -f 1,2; done | uniq )
         else
           PATHS_LIST=$(echo ${{ inputs.paths }} | sed 's/,/ /g')
         fi
@@ -97,6 +80,11 @@ jobs:
             origin_config_path=$origin_config_name
             if [ ! -z ${{ inputs.config_path }} ]; then
               origin_config_path="${{ inputs.config_path }}/$origin_config_path"
+            fi
+
+            if [[ ! -f $origin_config_path ]]; then
+              echo "Configuration file $origin_config_path doesn't exist. Skip"
+              continue
             fi
       
             # - start temp config setup -
