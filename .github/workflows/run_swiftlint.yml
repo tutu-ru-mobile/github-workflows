@@ -81,6 +81,15 @@ jobs:
           # Ищем папки с назанием NAME из предыдущего шага. Все .swift файлы в этой папке будут линтоваться с помощью соответствующего конфига
           PATHS_LIST=$( for file in ${NAMES[@]}; do find $FOLDERS -type d -path "*/$file" | head -n 1; done )
 
+          echo "--> Changed files: $CHANGED_FILES"
+          echo "\n"
+          echo "--> FOLDERS: $FOLDERS"
+          echo "\n"
+          echo "--> NAMES: $NAMES"
+          echo "\n"
+          echo "--> PATHS_LIST: $PATHS_LIST"
+          echo "\n"
+
           # - Конец этапа поиска папок для линта
         else
           PATHS_LIST=$(echo ${{ inputs.paths }} | sed 's/,/ /g')
