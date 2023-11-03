@@ -63,7 +63,7 @@ jobs:
         fi
 
         PATHS_LIST=""
-        if [[ -z ${{ inputs.paths }} ]]; then
+        if [ -z ${{ inputs.paths }} ]; then
           # - Этап поиска папок для линта
 
           # Получаем список уникальных папок, в которых поменялись swift-файлы
