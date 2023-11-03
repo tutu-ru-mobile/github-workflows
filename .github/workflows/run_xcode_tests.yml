@@ -83,8 +83,8 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 90
         run: |
-            device_udid=$(xcrun simctl create iPhone-14-Pro com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro com.apple.CoreSimulator.SimRuntime.iOS-17-0)
-            xcrun simctl boot $device_udid
+            device_udid=$(xcrun simctl create "iPhone-14-Pro" "com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro" "com.apple.CoreSimulator.SimRuntime.iOS-17-0")
+            xcrun simctl boot "$device_udid"
 
             xcodebuild clean test \
             -skipPackagePluginValidation \
