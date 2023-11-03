@@ -4,10 +4,10 @@ on:
   workflow_call:
     inputs:
       paths:
-        description: 'Paths for linting root folders from root separated by comma'
+        description: 'Paths for linting folders from root separated by comma'
         default: ""
         type: string
-        required: true
+        required: false
       is_strict:
         description: 'Any lint warnings will be determine as error'
         default: false
@@ -22,10 +22,6 @@ on:
         description: 'Custom base path for swiftlint configuration file. Config search will be performed on the root if path does not specified'
         default: ""
         type: string
-        required: false
-      dynamic_folder_path:
-        default: false
-        type: boolean
         required: false
     secrets:
       github_access_token:
@@ -67,11 +63,11 @@ jobs:
         fi
 
         PATHS_LIST=""
-        if [[ ${{ inputs.dynamic_folder_path }} == true ]]; then
+        if [[ -z ${{ inputs.paths }} ]]; then
           # - Этап поиска папок для линта
 
-          # Приводим список рутовых папок к нужному формату (заменяет запятые на пробелы)
-          FOLDERS=$(echo ${{ inputs.paths }} | sed 's/,/ /g')
+          # Получаем список уникальных папок, в которых поменялись swift-файлы
+          FOLDERS=$( for file in ${CHANGED_FILES[@]}; do echo $file | cut -d '/' -f1; done | grep -E "^\w*$" | uniq )
 
           # Устанавливаем папку поиска, если она есть. Иначе поиск будет происходить в рутовой папке без проверки вложенных папок
           CONFIG_SEARCH_FOLDER="."
@@ -87,7 +83,7 @@ jobs:
 
           # - Конец этапа поиска папок для линта
         else
-          PATHS_LIST=$(echo ${{ inputs.paths }} | awk -F ',' '{ for( i=1; i<=NF; i++ ) print $i }' )
+          PATHS_LIST=$(echo ${{ inputs.paths }} | sed 's/,/ /g')
         fi
         
         linter_errors=""
