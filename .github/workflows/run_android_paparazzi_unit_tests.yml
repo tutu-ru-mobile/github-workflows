@@ -49,8 +49,9 @@ jobs:
 
       - name: Setup task names
         run: |
-          echo ::set-env name=VERIFY_PAPARAZZI_TASK::verifyPaparazzi${{ inputs.flavor_build_type }}
-          echo ::set-env name=RECORD_PAPARAZZI_TASK::recordPaparazzi${{ inputs.flavor_build_type }}
+          # Создаем env-переменные VERIFY_PAPARAZZI_TASK и $RECORD_PAPARAZZI_TASK
+          echo "VERIFY_PAPARAZZI_TASK=verifyPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
+          echo "$RECORD_PAPARAZZI_TASK=recordPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
 
       - name: Run tests
         uses: gradle/gradle-build-action@v2
@@ -66,6 +67,7 @@ jobs:
         id: failed-screenshots
         run: |
           ./gradlew $RECORD_PAPARAZZI_TASK
+          
           PR_NUMBER=${GITHUB_REF#refs/pull/}
           PR_NUMBER=${PR_NUMBER/\/merge/}
           NEW_BRANCH_NAME="snapshots/pr-$PR_NUMBER"
@@ -82,6 +84,8 @@ jobs:
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "PR_COMMENT=\"Screenshot tests failed.\\n\\n[See differences](https://github.com/$GITHUB_REPOSITORY/compare/$PR_BRANCH...$NEW_BRANCH_NAME)\\n\\nMerge the branch if it's an intentional change.\"" >> $GITHUB_OUTPUT
         env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_BRANCH: ${{ github.head_ref }}
 
