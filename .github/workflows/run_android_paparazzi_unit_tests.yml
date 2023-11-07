@@ -66,7 +66,7 @@ jobs:
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
 
       - name: Process failed tests
-        if: failure()
+        if: failure() && github.event_name == 'pull_request'
         id: failed-screenshots
         run: |
           echo "Paparazzi record task name is $RECORD_PAPARAZZI_TASK"
@@ -75,6 +75,10 @@ jobs:
           PR_NUMBER=${GITHUB_REF#refs/pull/}
           PR_NUMBER=${PR_NUMBER/\/merge/}
           NEW_BRANCH_NAME="snapshots/record-$PR_NUMBER"
+          
+          echo "PR_NUMBER is $PR_NUMBER"
+          echo "PR_BRANCH is $PR_BRANCH"
+          echo "NEW_BRANCH_NAME is $NEW_BRANCH_NAME"
           
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
