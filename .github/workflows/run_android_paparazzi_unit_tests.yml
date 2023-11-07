@@ -51,12 +51,12 @@ jobs:
         run: |
           # Создаем env-переменные VERIFY_PAPARAZZI_TASK и RECORD_PAPARAZZI_TASK
           echo "VERIFY_PAPARAZZI_TASK=verifyPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
-          echo "$RECORD_PAPARAZZI_TASK=recordPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
+          echo "RECORD_PAPARAZZI_TASK=recordPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
 
       - name: Run tests
         uses: gradle/gradle-build-action@v2
+        run: ./gradlew $VERIFY_PAPARAZZI_TASK
         with:
-          arguments: ${{ env.VERIFY_PAPARAZZI_TASK }}
           cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
