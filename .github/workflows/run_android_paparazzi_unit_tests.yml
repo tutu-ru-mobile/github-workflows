@@ -28,6 +28,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Паттерн, который указывает, какие тесты будут выполнены.defaults:
+# В текущем варианте это тесты в пакете 'paparazzi'
+env:
+  TEST_FILTER_ARG: "*paparazzi*"
+
 jobs:
   run_paparazzi_unit_tests:
     runs-on: ubuntu-20.04
@@ -60,7 +65,7 @@ jobs:
       - name: Run tests
         run: |
           echo "Paparazzi verify task name is $VERIFY_PAPARAZZI_TASK"
-          ./gradlew "$VERIFY_PAPARAZZI_TASK"
+          ./gradlew "$VERIFY_PAPARAZZI_TASK" --tests $TEST_FILTER_ARG
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
@@ -70,7 +75,7 @@ jobs:
         id: failed-screenshots
         run: |
           echo "Paparazzi record task name is $RECORD_PAPARAZZI_TASK"
-          ./gradlew "$RECORD_PAPARAZZI_TASK"
+          ./gradlew "$RECORD_PAPARAZZI_TASK" --tests $TEST_FILTER_ARG
           
           PR_NUMBER=${GITHUB_REF#refs/pull/}
           PR_NUMBER=${PR_NUMBER/\/merge/}
