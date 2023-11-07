@@ -29,7 +29,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  run_paparazzin_unit_tests:
+  run_paparazzi_unit_tests:
     runs-on: ubuntu-20.04
     steps:
       - name: Cancel previous runs
@@ -52,29 +52,29 @@ jobs:
           # Наполняем env-переменные VERIFY_PAPARAZZI_TASK и RECORD_PAPARAZZI_TASK
           echo "VERIFY_PAPARAZZI_TASK=verifyPaparazzi${{ inputs.flavor_build_type }}" >> "$GITHUB_ENV"
           echo "RECORD_PAPARAZZI_TASK=recordPaparazzi${{ inputs.flavor_build_type }}" >> "$GITHUB_ENV"
-          
-          echo "Paparazzi record task name is $RECORD_PAPARAZZI_TASK"
-          echo "Paparazzi verify task name is $VERIFY_PAPARAZZI_TASK"
 
       - uses: gradle/gradle-build-action@v2
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
 
       - name: Run tests
-        run: ./gradlew "$VERIFY_PAPARAZZI_TASK"
+        run: |
+          echo "Paparazzi verify task name is $VERIFY_PAPARAZZI_TASK"
+          ./gradlew "$VERIFY_PAPARAZZI_TASK"
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
 
       - name: Process failed tests
-        #if: failure()
+        if: failure()
         id: failed-screenshots
         run: |
+          echo "Paparazzi record task name is $RECORD_PAPARAZZI_TASK"
           ./gradlew "$RECORD_PAPARAZZI_TASK"
           
           PR_NUMBER=${GITHUB_REF#refs/pull/}
           PR_NUMBER=${PR_NUMBER/\/merge/}
-          NEW_BRANCH_NAME="snapshots/pr-$PR_NUMBER"
+          NEW_BRANCH_NAME="snapshots/record-$PR_NUMBER"
           
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -82,7 +82,7 @@ jobs:
           git checkout --track "origin/$PR_BRANCH"
           git checkout -b "$NEW_BRANCH_NAME"
           git add -A
-          git commit -m "Update screenshots"
+          git commit -m "Update paparazzi screenshots"
           git push --force "https://$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
           
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_OUTPUT
