@@ -28,6 +28,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  VERIFY_PAPARAZZI_TASK: ""
+  RECORD_PAPARAZZI_TASK: ""
+
 jobs:
   run_paparazzin_unit_tests:
     runs-on: ubuntu-20.04
@@ -49,7 +53,7 @@ jobs:
 
       - name: Setup task names
         run: |
-          # Создаем env-переменные VERIFY_PAPARAZZI_TASK и RECORD_PAPARAZZI_TASK
+          # Наполняем env-переменные VERIFY_PAPARAZZI_TASK и RECORD_PAPARAZZI_TASK
           echo "VERIFY_PAPARAZZI_TASK=verifyPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
           echo "RECORD_PAPARAZZI_TASK=recordPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
 
@@ -58,7 +62,7 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
 
       - name: Run tests
-        run: ./gradlew $VERIFY_PAPARAZZI_TASK
+        run: ./gradlew "$VERIFY_PAPARAZZI_TASK"
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
@@ -67,7 +71,7 @@ jobs:
         #if: failure()
         id: failed-screenshots
         run: |
-          ./gradlew $RECORD_PAPARAZZI_TASK
+          ./gradlew "$RECORD_PAPARAZZI_TASK"
           
           PR_NUMBER=${GITHUB_REF#refs/pull/}
           PR_NUMBER=${PR_NUMBER/\/merge/}
