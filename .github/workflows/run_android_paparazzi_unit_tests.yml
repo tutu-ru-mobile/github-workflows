@@ -29,9 +29,9 @@ concurrency:
   cancel-in-progress: true
 
 # Паттерн, который указывает, какие тесты будут выполнены
-# В текущем варианте это тесты в пакете 'paparazzi'
+# В текущем варианте это тесты в с 'Paparazzi' в имени класса
 env:
-  TEST_FILTER_ARG: "*paparazzi*"
+  TEST_FILTER_ARG: "*Paparazzi*"
 
 jobs:
   run_paparazzi_unit_tests:
