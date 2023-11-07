@@ -53,15 +53,16 @@ jobs:
           echo "VERIFY_PAPARAZZI_TASK=verifyPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
           echo "RECORD_PAPARAZZI_TASK=recordPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
 
-      - name: Run tests
         uses: gradle/gradle-build-action@v2
-        run: ./gradlew $VERIFY_PAPARAZZI_TASK
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
+
+      - name: Run tests
+        run: ./gradlew $VERIFY_PAPARAZZI_TASK
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
-
+      
       - name: Process failed tests
         #if: failure()
         id: failed-screenshots
