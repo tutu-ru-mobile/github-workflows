@@ -105,3 +105,5 @@ jobs:
           repo: ${{ github.repository }}
           issue_number: ${{ steps.failed-screenshots.outputs.PR_NUMBER }}
           body: ${{ steps.failed-screenshots.outputs.PR_COMMENT }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_access_token }}
