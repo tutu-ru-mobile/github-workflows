@@ -28,10 +28,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  VERIFY_PAPARAZZI_TASK: ""
-  RECORD_PAPARAZZI_TASK: ""
-
 jobs:
   run_paparazzin_unit_tests:
     runs-on: ubuntu-20.04
@@ -54,8 +50,11 @@ jobs:
       - name: Setup task names
         run: |
           # Наполняем env-переменные VERIFY_PAPARAZZI_TASK и RECORD_PAPARAZZI_TASK
-          echo "VERIFY_PAPARAZZI_TASK=verifyPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
-          echo "RECORD_PAPARAZZI_TASK=recordPaparazzi${{ inputs.flavor_build_type }}" >> "GITHUB_ENV"
+          echo "VERIFY_PAPARAZZI_TASK=verifyPaparazzi${{ inputs.flavor_build_type }}" >> "$GITHUB_ENV"
+          echo "RECORD_PAPARAZZI_TASK=recordPaparazzi${{ inputs.flavor_build_type }}" >> "$GITHUB_ENV"
+          
+          echo "Paparazzi record task name is $RECORD_PAPARAZZI_TASK"
+          echo "Paparazzi verify task name is $VERIFY_PAPARAZZI_TASK"
 
       - uses: gradle/gradle-build-action@v2
         with:
