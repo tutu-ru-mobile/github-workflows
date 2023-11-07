@@ -28,7 +28,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Паттерн, который указывает, какие тесты будут выполнены.defaults:
+# Паттерн, который указывает, какие тесты будут выполнены
 # В текущем варианте это тесты в пакете 'paparazzi'
 env:
   TEST_FILTER_ARG: "*paparazzi*"
