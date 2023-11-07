@@ -7,7 +7,7 @@ on:
         description: 'Paths for linting folders from root separated by comma'
         default: ""
         type: string
-        required: true
+        required: false
       is_strict:
         description: 'Any lint warnings will be determine as error'
         default: false
@@ -51,6 +51,7 @@ jobs:
 
         url=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
         echo "Get file diffs from $url"
+        # Получаем диф между текущей веткой и веткой-назначения
         CHANGED_FILES=$( \
         curl -H "Accept: application/vnd.github.v3.diff" -H "Authorization: token ${{ secrets.github_access_token }}" $url \
             | { grep -E '^diff --git (a\/.+.swift) (b\/.+.swift)$' || :; } \
@@ -60,16 +61,30 @@ jobs:
           echo "Nothing to lint"
           exit 0
         fi
+
+        PATHS_LIST=""
+
+        # Чтобы слить в мастер и запустить плавную перекатку на новый флоу
+        if [ -z ${{ inputs.paths }} ]; then
+          PATHS_LIST=$( for file in ${CHANGED_FILES[@]}; do echo $file | cut -d '/' -f 1,2; done | uniq )
+        else
+          PATHS_LIST=$(echo ${{ inputs.paths }} | sed 's/,/ /g')
+        fi
         
-        paths_list=$(echo ${{ inputs.paths }} | awk -F ',' '{ for( i=1; i<=NF; i++ ) print $i }' )
         linter_errors=""
-        for path in ${paths_list[@]}; do
+        for path in ${PATHS_LIST[@]}; do
+            # Получаем имя папки для анализа
             last_path=$(echo $path | awk -F "/" '{print $NF}')
 
             origin_config_name=".$last_path.swiftlint.yml"
             origin_config_path=$origin_config_name
             if [ ! -z ${{ inputs.config_path }} ]; then
               origin_config_path="${{ inputs.config_path }}/$origin_config_path"
+            fi
+
+            if [[ ! -f $origin_config_path ]]; then
+              echo "Configuration file $origin_config_path doesn't exist. Skip"
+              continue
             fi
       
             # - start temp config setup -
@@ -80,9 +95,16 @@ jobs:
             echo -e "parent_config: $origin_config_path\n\ndisabled_rules:\n    - todo" >> $temp_config
             # - done temp config setup -
 
+            # - Этап формирования списка проверяемых файлов
             source_dir=$path
+
+            # Из измененных файлов берём только те, что лежат в проверяемой папке
             filtered=$( for file in ${CHANGED_FILES[@]}; do echo $file; done | { grep -E "^$source_dir/" || :; } )
+
+            # Берём только файлы (исключаем папки)
             filtered=$( for file in ${filtered[@]}; do if [ -f $file ]; then echo $file; fi done )
+            # - Конец этап формирования списка проверяемых файлов
+
             config_args=""
 
             if [ -n "$filtered" ]; then
