@@ -96,7 +96,7 @@ jobs:
             -test-iterations 5 \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            ONLY_ACTIVE_ARCH=NO 
+            ONLY_ACTIVE_ARCH=YES
         env:
            destination: ${{ matrix.destination }}
       - name: Remove ci tag
