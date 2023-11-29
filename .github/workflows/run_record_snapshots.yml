@@ -84,6 +84,8 @@ jobs:
             xcodebuild clean test \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
+            -skipUnavailableActions \
+            -skipPackagePluginValidation \
             -testLanguage ru \
             -testRegion ru_RU \
             -destination "${destination}" \
@@ -103,6 +105,8 @@ jobs:
             xcodebuild test \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
+            -skipUnavailableActions \
+            -skipPackagePluginValidation \
             -testLanguage ru \
             -testRegion ru_RU \
             -destination "${destination}" \
