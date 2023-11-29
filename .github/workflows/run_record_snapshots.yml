@@ -77,6 +77,7 @@ jobs:
           make generate-xcodeproj
       - name: Remove snapshots
         run: find . -type d -name "__Snapshots__" -exec rm -rf {} +
+      - run: touch .ci_tag
       - name: Build and record Snapshots (First run)
         timeout-minutes: 90
         continue-on-error: true
@@ -118,6 +119,7 @@ jobs:
             ONLY_ACTIVE_ARCH=NO
         env:
            destination: ${{ matrix.destination }}
+      - run: rm .ci_tag
       - name: Make PR with new snapshots
         uses: tutu-ru-mobile/create-pull-request@tutu
         with:
