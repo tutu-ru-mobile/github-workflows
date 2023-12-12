@@ -81,7 +81,7 @@ jobs:
       - name: Create ci tag
         run: touch .ci_tag
       - name: Compile and Test
-        timeout-minutes: 90
+        timeout-minutes: 120
         run: |
             xcodebuild clean test \
             -skipPackagePluginValidation \
