@@ -56,7 +56,10 @@ on:
         required: false
       telemetry_slug:
         required: false
-
+    outputs:
+      flank_result:
+        description: "Directory with flank results"
+        value: ${{ jobs.run_ui_tests.outputs.flank_result }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -66,19 +69,20 @@ jobs:
   run_ui_tests:
     runs-on:
       group: ubuntu-larger
+    outputs:
+      flank_result: ${{ steps.flank_run.outputs.local_results_directory }}
     steps:
-      - id: pipeline-start-date
+      - id: pipeline_start_date
         uses: tutu-ru-mobile/github-workflows/action_get_current_date@main
+
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.11.0
         with:
           all_but_latest: true
           access_token: ${{ secrets.github_access_token }}
 
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-      - name: Setup Java 17
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v3.1.0
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -108,23 +112,25 @@ jobs:
         uses: actions/download-artifact@v3
 
       - name: Run instrumented tests
+        id: flank_run
         uses: Flank/flank@v23.04.0
         with:
           service_account: ${{ secrets.firebase_key }}
           platform: android
           flank_configuration_file: ${{ inputs.flank_configuration_file }}
+        run: echo "flank_result=${{ outputs.local_results_directory }}" >> "$GITHUB_OUTPUT"
 
-      - id: seconds-from-date
+      - id: seconds_from_date
         name: Pipeline duration
         uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
         with:
-          from-date: ${{ steps.pipeline-start-date.outputs.seconds-from-epoch }}
+          from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
 
       - uses: tutu-ru-mobile/send-ci-telemetry@main
         with:
           url: ${{ secrets.telemetry_url }}
           slug: ${{ secrets.telemetry_slug }}
           metrics_name: "test_time_duration"
-          metrics_value: ${{ steps.seconds-from-date.outputs.seconds-from-date }}
+          metrics_value: ${{ steps.seconds_from_date.outputs.seconds-from-date }}
           metrics_labels: |
             {"os": "android", "app": "${{ inputs.uploaded_app_artifact_name }}", "test_type": "ui"}
