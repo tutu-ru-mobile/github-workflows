@@ -118,7 +118,9 @@ jobs:
           service_account: ${{ secrets.firebase_key }}
           platform: android
           flank_configuration_file: ${{ inputs.flank_configuration_file }}
-        run: echo "flank_result=${{ outputs.local_results_directory }}" >> "$GITHUB_OUTPUT"
+
+      - name: Map flank output to job output
+        run: echo "flank_result=${{ steps.flank_run.outputs.local_results_directory }}" >> "$GITHUB_OUTPUT"
 
       - id: seconds_from_date
         name: Pipeline duration
