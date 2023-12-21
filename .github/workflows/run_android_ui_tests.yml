@@ -13,6 +13,11 @@ on:
         type: string
         default: "./ci/flank/pr_tests_config.yml"
         required: false
+      upload_test_results:
+        description: "Uploads flank test results to be able to use them from outer jobs. If specified, uploaded aritfact will be stored under uploaded_test_artifact_name folder"
+        type: boolean
+        required: false
+        default: false
       assemble_task:
         type: string
         default: "assembleDebug"
@@ -56,10 +61,6 @@ on:
         required: false
       telemetry_slug:
         required: false
-    outputs:
-      flank_result:
-        description: "Directory with flank results"
-        value: ${{ jobs.run_ui_tests.outputs.flank_result }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -69,8 +70,6 @@ jobs:
   run_ui_tests:
     runs-on:
       group: ubuntu-larger
-    outputs:
-      flank_result: ${{ steps.flank_run.outputs.local_results_directory }}
     steps:
       - name: Start measuring job duration
         id: pipeline_start_date
@@ -123,11 +122,15 @@ jobs:
           platform: android
           flank_configuration_file: ${{ inputs.flank_configuration_file }}
 
-      - name: Map flank output
-        run: echo "flank_result=${{ steps.flank_run.outputs.local_results_directory }}" >> "$GITHUB_OUTPUT"
+      - name: Upload test results
+        if: inputs.upload_test_results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.uploaded_test_artifact_name }}
+          path: ${{ steps.flank_run.outputs.local_results_directory }}
 
-      - id: seconds_from_date
-        name: Stop measuring workflow duration
+      - name: Stop measuring workflow duration
+        id: seconds_from_date
         uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
         with:
           from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
