@@ -72,7 +72,8 @@ jobs:
     outputs:
       flank_result: ${{ steps.flank_run.outputs.local_results_directory }}
     steps:
-      - id: pipeline_start_date
+      - name: Start measuring job duration
+        id: pipeline_start_date
         uses: tutu-ru-mobile/github-workflows/action_get_current_date@main
 
       - name: Cancel previous runs
@@ -81,16 +82,16 @@ jobs:
           all_but_latest: true
           access_token: ${{ secrets.github_access_token }}
 
-      - name: Checkout
+      - name: Checkout project
         uses: actions/checkout@v3
 
-      - name: Setup Java 17
+      - name: Setup java
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Assemble
+      - name: Build APKs
         uses: gradle/gradle-build-action@v2
         with:
           arguments: ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}
@@ -111,7 +112,7 @@ jobs:
           name: ${{ inputs.uploaded_test_artifact_name }}
           path: ${{ inputs.output_test_apk_build_path }}
 
-      - name: Download artifacts
+      - name: Download APKs
         uses: actions/download-artifact@v3
 
       - name: Run instrumented tests
@@ -122,15 +123,17 @@ jobs:
           platform: android
           flank_configuration_file: ${{ inputs.flank_configuration_file }}
 
-      - run: echo "flank_result=${{ steps.flank_run.outputs.local_results_directory }}" >> "$GITHUB_OUTPUT"
+      - name: Map flank output
+        run: echo "flank_result=${{ steps.flank_run.outputs.local_results_directory }}" >> "$GITHUB_OUTPUT"
 
       - id: seconds_from_date
-        name: Pipeline duration
+        name: Stop measuring workflow duration
         uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
         with:
           from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
 
-      - uses: tutu-ru-mobile/send-ci-telemetry@main
+      - name: Send workflow telemetry
+        uses: tutu-ru-mobile/send-ci-telemetry@main
         with:
           url: ${{ secrets.telemetry_url }}
           slug: ${{ secrets.telemetry_slug }}
