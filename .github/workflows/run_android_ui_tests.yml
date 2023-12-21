@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      continue_on_error:
+        description: "Specified whether job should fail when it's actually fails"
+        type: boolean
+        required: false
+        default: false
       assemble_task:
         type: string
         default: "assembleDebug"
@@ -116,6 +121,7 @@ jobs:
 
       - name: Run instrumented tests
         id: flank_run
+        continue-on-error: ${{ inputs.continue_on_error }}
         uses: Flank/flank@master
         with:
           service_account: ${{ secrets.firebase_key }}
