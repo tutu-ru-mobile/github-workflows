@@ -19,7 +19,7 @@ on:
         required: false
         default: false
       continue_on_error:
-        description: "Specified whether job should fail when it's actually fails"
+        description: "Specified whether job should fail when it is actually fails"
         type: boolean
         required: false
         default: false
@@ -121,7 +121,7 @@ jobs:
 
       - name: Run instrumented tests
         id: flank_run
-        continue-on-error: ${{ inputs.continue_on_error }}
+        continue-on-error: ${{ github.event.inputs.continue_on_error }}
         uses: Flank/flank@master
         with:
           service_account: ${{ secrets.firebase_key }}
