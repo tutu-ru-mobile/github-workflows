@@ -14,7 +14,7 @@ on:
         default: "./ci/flank/pr_tests_config.yml"
         required: false
       upload_test_results:
-        description: "Uploads flank test results to be able to use them from outer jobs. If specified, uploaded aritfact will be stored under uploaded_test_artifact_name folder"
+        description: "Uploads flank test results to be able to use them from outer jobs. If specified, uploaded aritfacts will be stored in *artifact* folder by default"
         type: boolean
         required: false
         default: false
@@ -116,7 +116,7 @@ jobs:
 
       - name: Run instrumented tests
         id: flank_run
-        uses: Flank/flank@v23.04.0
+        uses: Flank/flank@master
         with:
           service_account: ${{ secrets.firebase_key }}
           platform: android
@@ -126,7 +126,6 @@ jobs:
         if: inputs.upload_test_results
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.uploaded_test_artifact_name }}
           path: ${{ steps.flank_run.outputs.local_results_directory }}
 
       - name: Stop measuring workflow duration
