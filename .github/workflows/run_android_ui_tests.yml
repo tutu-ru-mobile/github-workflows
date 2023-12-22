@@ -63,7 +63,7 @@ on:
         required: false
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.flank_configuration_file }}
   cancel-in-progress: true
 
 jobs:
@@ -74,12 +74,6 @@ jobs:
       - name: Start measuring job duration
         id: pipeline_start_date
         uses: tutu-ru-mobile/github-workflows/action_get_current_date@main
-
-      - name: Cancel previous runs
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          all_but_latest: true
-          access_token: ${{ secrets.github_access_token }}
 
       - name: Checkout project
         uses: actions/checkout@v3
