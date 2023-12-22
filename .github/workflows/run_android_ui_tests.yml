@@ -121,7 +121,10 @@ jobs:
 
       - name: Run instrumented tests
         id: flank_run
-        continue-on-error: ${{ github.event.inputs.continue_on_error }}
+        # workaround for passing inputs to continue-on-error value
+        env:
+          CONTINUE_ON_ERROR: ${{ inputs.continue_on_error }}
+        continue-on-error: ${{ fromJSON(env.CONTINUE_ON_ERROR) }}
         uses: Flank/flank@master
         with:
           service_account: ${{ secrets.firebase_key }}
