@@ -13,6 +13,11 @@ on:
         type: string
         default: "./ci/flank/pr_tests_config.yml"
         required: false
+      upload_test_results:
+        description: "Uploads flank test results to be able to use them from outer jobs. If specified, uploaded aritfacts will be stored in $uploaded_test_artifact_name folder"
+        type: boolean
+        required: false
+        default: false
       assemble_task:
         type: string
         default: "assembleDebug"
@@ -57,9 +62,8 @@ on:
       telemetry_slug:
         required: false
 
-
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.flank_configuration_file }}
   cancel-in-progress: true
 
 jobs:
@@ -67,23 +71,20 @@ jobs:
     runs-on:
       group: ubuntu-larger
     steps:
-      - id: pipeline-start-date
+      - name: Start measuring job duration
+        id: pipeline_start_date
         uses: tutu-ru-mobile/github-workflows/action_get_current_date@main
-      - name: Cancel previous runs
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          all_but_latest: true
-          access_token: ${{ secrets.github_access_token }}
 
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-      - name: Setup Java 17
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Setup java
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Assemble
+      - name: Build APKs
         uses: gradle/gradle-build-action@v2
         with:
           arguments: ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}
@@ -104,27 +105,36 @@ jobs:
           name: ${{ inputs.uploaded_test_artifact_name }}
           path: ${{ inputs.output_test_apk_build_path }}
 
-      - name: Download artifacts
+      - name: Download APKs
         uses: actions/download-artifact@v3
 
       - name: Run instrumented tests
-        uses: Flank/flank@v23.04.0
+        id: flank_run
+        uses: Flank/flank@master
         with:
           service_account: ${{ secrets.firebase_key }}
           platform: android
           flank_configuration_file: ${{ inputs.flank_configuration_file }}
 
-      - id: seconds-from-date
-        name: Pipeline duration
+      - name: Upload test results
+        if: inputs.upload_test_results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.uploaded_test_artifact_name }}
+          path: ${{ steps.flank_run.outputs.local_results_directory }}
+
+      - name: Stop measuring workflow duration
+        id: seconds_from_date
         uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
         with:
-          from-date: ${{ steps.pipeline-start-date.outputs.seconds-from-epoch }}
+          from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
 
-      - uses: tutu-ru-mobile/send-ci-telemetry@main
+      - name: Send workflow telemetry
+        uses: tutu-ru-mobile/send-ci-telemetry@main
         with:
           url: ${{ secrets.telemetry_url }}
           slug: ${{ secrets.telemetry_slug }}
           metrics_name: "test_time_duration"
-          metrics_value: ${{ steps.seconds-from-date.outputs.seconds-from-date }}
+          metrics_value: ${{ steps.seconds_from_date.outputs.seconds-from-date }}
           metrics_labels: |
             {"os": "android", "app": "${{ inputs.uploaded_app_artifact_name }}", "test_type": "ui"}
