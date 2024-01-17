@@ -7,7 +7,7 @@ on:
         description: 'Path to Dangerfile'
         default: 'vendor/ProjectUtils/Scripts/Dangerfile'
         type: string
-        required: true
+        required: false
     secrets:
       github_access_token:
         required: true
