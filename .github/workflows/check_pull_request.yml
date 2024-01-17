@@ -4,12 +4,14 @@ on:
   workflow_call:
     inputs:
       dangerfile_path:
-        description: 'Path to Dangerfile. Default is root'
-        default: "Dangerfile"
+        description: 'Path to Dangerfile'
+        default: 'vendor/ProjectUtils/Scripts/Dangerfile'
         type: string
         required: true
     secrets:
       github_access_token:
+        required: true
+      ssh_private_key:
         required: true
 
 concurrency:
@@ -26,6 +28,13 @@ jobs:
         with:
           all_but_latest: true
           access_token: ${{ secrets.github_access_token }}
+
+      - name: Setup SSH
+        uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
+        with:
+          ssh-private-key: ${{ secrets.ssh_private_key }}
+      - name: Sync Dangerfile
+        run: ./download_project_utils.sh
 
       - name: Checkout repo
         uses: actions/checkout@v3.1.0
