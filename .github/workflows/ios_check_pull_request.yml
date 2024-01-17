@@ -1,0 +1,56 @@
+name: Check pull request
+
+on:
+  workflow_call:
+    inputs:
+      dangerfile_path:
+        description: 'Path to Dangerfile'
+        default: 'vendor/ProjectUtils/Scripts/Dangerfile'
+        type: string
+        required: false
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check_pr:
+    runs-on: ubuntu-20.04
+    if: github.event_name  == 'pull_request'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3.1.0
+
+      - name: Setup SSH
+        uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
+        with:
+          ssh-private-key: ${{ secrets.ssh_private_key }}
+      - name: Sync Dangerfile
+        run: ./download_project_utils.sh
+
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.8'
+
+      - name: Install ruby dependencies
+        run: |
+          if test -f "Gemfile"; then
+            bundle lock --add-platform x86_64-linux
+            bundle config set --local path 'vendor/bundle'
+            bundle install
+          fi
+
+      - uses: MeilCli/danger-action@v5
+        continue-on-error: true
+        with:
+          plugins_file: 'Gemfile'
+          danger_file: ${{ inputs.dangerfile_path }}
+          danger_id: 'danger-pr'
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
