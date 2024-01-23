@@ -3,11 +3,6 @@ name: Check pull request
 on:
   workflow_call:
     inputs:
-      dangerfile_path:
-        description: 'Path to Dangerfile'
-        default: 'vendor/ProjectUtils/Scripts/Dangerfile.swift'
-        type: string
-        required: false
       release_branch_pattern:
         description: 'Regex pattern for release branch. Like: release/(transport|avia|bus|train)-'
         type: string
@@ -36,7 +31,9 @@ jobs:
           ssh-private-key: ${{ secrets.ssh_private_key }}
 
       - name: Sync Dangerfile
-        run: ./download_project_utils.sh
+        run: |
+          ./download_project_utils.sh
+          cp -f vendor/ProjectUtils/Scripts/Dangerfile.swift Dangerfile.swift
 
       - name: Create diff file
         run: |
@@ -46,7 +43,7 @@ jobs:
       - name: Danger
         uses: docker://ghcr.io/danger/danger-swift:3.18.0
         with:
-            args: --failOnErrors --dangerfile ${{ inputs.dangerfile_path }}
+            args: --failOnErrors -dangerfile Dangerfile.swift
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
           DANGER_RELEASE_BRANCH_PATTERN: ${{ inputs.release_branch_pattern }}
