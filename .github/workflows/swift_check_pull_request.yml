@@ -46,12 +46,12 @@ jobs:
       - name: Danger
         uses: docker://ghcr.io/danger/danger-swift:3.18.0
         with:
-            args: --failOnErrors -dangerfile ${{ inputs.dangerfile_path }}
+            args: --failOnErrors --dangerfile ${{ inputs.dangerfile_path }}
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
           DANGER_RELEASE_BRANCH_PATTERN: ${{ inputs.release_branch_pattern }}
           DANGER_DIFF_FILE: "diff.txt"
-          
+
       - if: always()
         name: Post
         run: rm diff.txt
