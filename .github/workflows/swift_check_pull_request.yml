@@ -1,0 +1,54 @@
+name: Check pull request
+
+on:
+  workflow_call:
+    inputs:
+      release_branch_pattern:
+        description: 'Regex pattern for release branch. Like: release/(transport|avia|bus|train)-'
+        type: string
+        required: true
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check_pr:
+    runs-on: ubuntu-latest
+    if: github.event_name  == 'pull_request'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3.1.0
+
+      - name: Setup SSH
+        uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
+        with:
+          ssh-private-key: ${{ secrets.ssh_private_key }}
+
+      - name: Sync Dangerfile
+        run: |
+          ./download_project_utils.sh
+          cp -f vendor/ProjectUtils/Scripts/Dangerfile.swift Dangerfile.swift
+
+      - name: Create diff file
+        run: |
+          URL=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
+          curl -H "Accept: application/vnd.github.v3.diff" -H "Authorization: token ${{ secrets.github_access_token }}" $URL > diff.txt
+
+      - name: Danger
+        uses: docker://ghcr.io/danger/danger-swift:3.18.0
+        with:
+            args: --failOnErrors -dangerfile Dangerfile.swift
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
+          DANGER_RELEASE_BRANCH_PATTERN: ${{ inputs.release_branch_pattern }}
+          DANGER_DIFF_FILE: "diff.txt"
+
+      - if: always()
+        name: Post
+        run: rm diff.txt
