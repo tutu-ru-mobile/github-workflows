@@ -3,6 +3,11 @@ name: Run Android UI tests
 on:
   workflow_call:
     inputs:
+      branch:
+        description: "Branch to checkout"
+        type: boolean
+        required: false
+        default: ''
       is_gradle_cache_debug_enabled:
         description: "Enable or disable Gradle build cache"
         type: boolean
@@ -77,6 +82,8 @@ jobs:
 
       - name: Checkout project
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
 
       - name: Setup java
         uses: actions/setup-java@v3
