@@ -7,7 +7,7 @@ on:
         description: "Branch to checkout"
         type: boolean
         required: false
-        default: ''
+        default: ""
       is_gradle_cache_debug_enabled:
         description: "Enable or disable Gradle build cache"
         type: boolean
