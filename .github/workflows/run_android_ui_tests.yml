@@ -5,7 +5,7 @@ on:
     inputs:
       branch:
         description: "Branch to checkout"
-        type: boolean
+        type: string
         required: false
         default: ""
       is_gradle_cache_debug_enabled:
