@@ -80,10 +80,24 @@ jobs:
         id: pipeline_start_date
         uses: tutu-ru-mobile/github-workflows/action_get_current_date@main
 
+      - name: Get checkout branch
+        run: |
+          if [ ${{ inputs.branch == '' }} ] 
+          then
+            CHECKOUT_BRANCH=${{ github.ref }};
+          else
+            CHECKOUT_BRANCH=${{ inputs.branch }};
+          fi
+          
+          echo "Input branch: ${{ inputs.branch }}"
+          echo "Current branch: ${{ github.ref }}"
+          echo "Result branch: $CHECKOUT_BRANCH"
+          echo "checkout_branch=$CHECKOUT_BRANCH" >> $GITHUB_ENV
+
       - name: Checkout project
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ env.checkout_branch }}
 
       - name: Setup java
         uses: actions/setup-java@v3
