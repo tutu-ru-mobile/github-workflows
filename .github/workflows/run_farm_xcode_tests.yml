@@ -1,0 +1,152 @@
+name: Run Farm Xcode tests
+
+on:
+  workflow_call:
+    outputs:
+      TESTS_STATUS:
+        value: ${{ jobs.run_xcode_tests.outputs.JOB_TESTS_RESULT }}
+      hours:
+        value: ${{ jobs.run_xcode_tests.outputs.hours }}
+      minutes:
+        value: ${{ jobs.run_xcode_tests.outputs.minutes }}
+      seconds:
+        value: ${{ jobs.run_xcode_tests.outputs.seconds }}
+    inputs:
+      is_run_xcodegen:
+        description: '`true` is for run xcodegen'
+        default: false
+        type: boolean
+        required: false
+      workspace_name:
+        description: 'Path to workspace file'
+        type: string
+        required: true
+      scheme_name:
+        description: 'Scheme name to run'
+        type: string
+        required: true
+      xcresult_name:
+        description: 'File bundle path to save xcresult'
+        type: string
+        required: true
+      is_collect_issues:
+        description: '`true` for collect issues and show via Danger'
+        type: boolean
+        default: false
+        required: false
+      dangerfile_name:
+        description: 'Path to Dangerfile'
+        type: string
+        required: false
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: true
+
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+        
+jobs:
+  run_xcode_tests:
+    outputs:
+      JOB_TESTS_RESULT: ${{ steps.step1.outputs.TESTS_STATUS }}
+      hours: ${{ steps.runtime.outputs.hours }}
+      minutes: ${{ steps.runtime.outputs.minutes }}
+      seconds: ${{ steps.runtime.outputs.seconds }}
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
+    runs-on: tutu-mac-builder
+    continue-on-error: true
+    strategy:
+      matrix:
+        destination: ['platform=iOS Simulator,name=iPhone 11']
+    steps:
+      - name: Start time
+        id: starttime
+        run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")" >> $GITHUB_OUTPUT
+      - name: Checkout repository
+        uses: actions/checkout@v3.1.0
+      - name: Setup SSH
+        uses: tutu-ru-mobile/github-action-ssh-agent@v1.1.0-tutu
+        with:
+          ssh-private-key: ${{ secrets.ssh_private_key }}
+      - name: Change origin to ssh link
+        run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
+      - run: bundle install
+      - if: ${{ inputs.is_run_xcodegen }}
+        name: Generate xcodeproj
+        run: |
+          make install-xcodegen
+          make generate-xcodeproj
+      - name: Create ci tag
+        run: touch .ci_tag
+      - name: Compile and Test
+        timeout-minutes: 120
+        run: |
+            xcodebuild clean test \
+            -skipPackagePluginValidation \
+            -workspace ${{ inputs.workspace_name }} \
+            -scheme ${{ inputs.scheme_name }} \
+            -destination "${destination}" \
+            -resultBundlePath '${{ inputs.xcresult_name }}' \
+            -retry-tests-on-failure \
+            -test-iterations 5 \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            ONLY_ACTIVE_ARCH=NO 
+        env:
+           destination: ${{ matrix.destination }}
+      - name: Remove ci tag
+        run: rm .ci_tag
+      - if: always()
+        name: Prepare xcresults
+        run: zip -r logs.zip ${{ inputs.xcresult_name }} || echo "Nothing to archive"
+      - if: always()
+        continue-on-error: true
+        name: Archive xcresults
+        uses: actions/upload-artifact@v3
+        with:
+          path: logs.zip
+          name: ${{ inputs.xcresult_name }}
+          retention-days: 3
+
+      - if: ${{ inputs.is_collect_issues }}
+        continue-on-error: true
+        name: Collect issues
+        uses: MeilCli/danger-action@v5
+        with:
+          plugins_file: 'Gemfile'
+          install_path: 'vendor/bundle'
+          danger_file: ${{ inputs.dangerfile_name }}
+          danger_id: 'danger-pr'
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
+      - id: step1
+        run: |
+          if [ $? -eq 0 ]; then
+            echo "All tests passed!"
+            echo "TESTS_STATUS=success" >> $GITHUB_OUTPUT
+          else
+            echo "Some tests failed."
+            echo "TESTS_STATUS=failed" >> $GITHUB_OUTPUT
+          fi
+      - if: always()
+        continue-on-error: true
+        name: End Time
+        id: endtime
+        run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")" >> $GITHUB_OUTPUT
+      - if: always()
+        continue-on-error: true
+        name: Calculate execution time
+        id: runtime
+        run: |
+          start=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.starttime.outputs.time }}" +%s)
+          end=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "${{ steps.endtime.outputs.time }}" +%s)
+          runtime=$((end-start))
+          hours=$((runtime / 3600))
+          minutes=$(( (runtime % 3600) / 60))
+          seconds=$((runtime % 60))
+          echo "hours=${hours}" >> $GITHUB_OUTPUT
+          echo "minutes=${minutes}" >> $GITHUB_OUTPUT
+          echo "seconds=${seconds}" >> $GITHUB_OUTPUT
