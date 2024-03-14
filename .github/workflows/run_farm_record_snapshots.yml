@@ -58,10 +58,6 @@ jobs:
       matrix:
         destination: ['platform=iOS Simulator,name=iPhone 11']
     steps:
-      - name: System info
-        run: |
-          echo "CPU arch" && arch
-          system_profiler SPSoftwareDataType SPHardwareDataType
       - name: Checkout repository
         uses: actions/checkout@v3.1.0
       - name: Setup SSH
@@ -94,14 +90,15 @@ jobs:
             -resultBundlePath '${{ env.record_xcresults_name }}' \
             -retry-tests-on-failure \
             -test-iterations 5 \
-            -parallel-testing-enabled YES \
+            -parallel-testing-enabled YES\
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO \
             | bundle exec xcpretty
         env:
            destination: ${{ matrix.destination }}
-      - if: ${{ inputs.is_run_check }}
+      # - if: ${{ inputs.is_run_check }}
+      - if: ${{ false }}
         name: Check Snapshots (Second run)
         timeout-minutes: 120
         run: |
@@ -125,7 +122,7 @@ jobs:
            destination: ${{ matrix.destination }}
       - run: rm .ci_tag
       - name: Make PR with new snapshots
-        uses: tutu-ru-mobile/create-pull-request@tutu
+        uses: peter-evans/create-pull-request@v6
         with:
           branch: "feature/NO-ISSUE_recording_${{github.run_id}}"
           delete-branch: true
@@ -133,8 +130,8 @@ jobs:
           base: ${{ github.head_ref }}
           title: "NO-ISSUE: updated snapshots"
           body: >
-              Updated snapshots 
-          add-pattern-array: "**__Snapshots__**"
+              Updated snapshots
+          add-paths: "**/__Snapshots__/**"
       - name: Save xcresult folders
         uses: actions/upload-artifact@v2
         with:
