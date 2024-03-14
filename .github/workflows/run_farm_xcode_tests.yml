@@ -92,6 +92,7 @@ jobs:
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
             -test-iterations 5 \
+            -parallel-testing-enabled \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO \
