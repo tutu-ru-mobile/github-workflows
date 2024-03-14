@@ -132,7 +132,7 @@ jobs:
           title: "NO-ISSUE: updated snapshots"
           body: >
               Updated snapshots 
-          add-pattern-array: "**__Snapshots__**.png"
+          add-pattern-array: "**__Snapshots__**"
       - name: Save xcresult folders
         uses: actions/upload-artifact@v2
         with:
