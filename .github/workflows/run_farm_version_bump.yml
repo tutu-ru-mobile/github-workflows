@@ -1,0 +1,56 @@
+name: Run version bump
+
+on:
+  workflow_call:
+    inputs:
+      bump_type:
+        description: "What type of number will be bumped: patch|minor|major. Default is `patch`"
+        default: "patch"
+        type: string
+        required: true
+      is_run_fastlane:
+        description: "Manual run or with fastlane lane. Default is `true`"
+        default: true
+        type: boolean
+        required: true
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+
+jobs:
+  cancel_previous_runs:
+    name: "Cancel Previous Runs"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.12.0
+        with:
+          all_but_latest: true
+          access_token: ${{ secrets.github_access_token }}
+  bump:
+    needs: cancel_previous_runs
+    runs-on: tutu-mac-builder
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3.1.0
+        with:
+          ref: main
+      - run: bundle install
+      - name: Setup SSH
+        uses: tutu-ru-mobile/github-action-ssh-agent@v1.1.0-tutu
+        with:
+          ssh-private-key: ${{ secrets.ssh_private_key }}
+      - name: Change origin to ssh link
+        run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
+      - if: ${{ inputs.is_run_fastlane }}
+        name: Bump
+        run: bundle exec fastlane ${{ inputs.bump_type }}
