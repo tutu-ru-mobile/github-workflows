@@ -41,7 +41,7 @@ jobs:
           curl -H "Accept: application/vnd.github.v3.diff" -H "Authorization: token ${{ secrets.github_access_token }}" $URL > diff.txt
 
       - name: Danger
-        uses: docker://ghcr.io/danger/danger-swift:3.18.0
+        uses: docker://ghcr.io/danger/danger-swift:3.18.1
         with:
             args: --failOnErrors -dangerfile Dangerfile.swift
         env:
