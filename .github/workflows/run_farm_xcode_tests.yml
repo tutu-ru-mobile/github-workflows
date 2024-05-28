@@ -11,6 +11,8 @@ on:
         value: ${{ jobs.run_xcode_tests.outputs.minutes }}
       seconds:
         value: ${{ jobs.run_xcode_tests.outputs.seconds }}
+      launch_id:
+        value: ${{ jobs.run_xcode_tests.outputs.launch_id }}
     inputs:
       is_run_xcodegen:
         description: '`true` is for run xcodegen'
@@ -38,6 +40,11 @@ on:
         description: 'Path to Dangerfile'
         type: string
         required: false
+      is_run_allure:
+        description: '`true` is for run allure'
+        default: false
+        type: boolean
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -55,6 +62,7 @@ jobs:
       hours: ${{ steps.runtime.outputs.hours }}
       minutes: ${{ steps.runtime.outputs.minutes }}
       seconds: ${{ steps.runtime.outputs.seconds }}
+      launch_id: ${{ steps.set-output.outputs.LAUNCH_ID }}
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
     runs-on: tutu-mac-builder
     continue-on-error: true
@@ -112,7 +120,60 @@ jobs:
           path: logs.zip
           name: ${{ inputs.xcresult_name }}
           retention-days: 3
-
+          
+      - if: ${{ inputs.is_run_allure}}     
+       # Шаг для создания директории с отчетами
+        name: Create folder
+        run: mkdir allure-results 
+          
+      - if: ${{ inputs.is_run_allure}}            
+       # Шаг для преобразования под Allure 
+        name: Convert xcresult to Allure results
+        run: xcresults export ${{ inputs.xcresult_name }} allure-results  
+          
+      - if: ${{ inputs.is_run_allure}}         
+      # Шаг для создания лаунча и сохранения его id 
+        name: Create launch to Allure
+        id: set-output
+        run: |
+          RESULT=$(allurectl launch create --output json ./allure-results \
+            --token ${{ secrets.ALLURE_TOKEN }} \
+            --endpoint "${{ secrets.ALLURE_ENDPOINT }}" \
+            --project-id ${{ env.PROJECT_ID }} \
+            --launch-name "Прогон iOS автотестов на CI")
+          LAUNCH_ID=$(echo "$RESULT" | jq -r '.[0].id')
+          echo "LAUNCH_ID=$LAUNCH_ID"
+          echo "LAUNCH_ID=$LAUNCH_ID" >> $GITHUB_ENV
+          echo "LAUNCH_ID=$LAUNCH_ID" >> $GITHUB_OUTPUT
+        env:
+          PROJECT_ID: 54
+        
+      - if: ${{ inputs.is_run_allure}}       
+      # Шаг для загрузки файлов в Allure TestOps
+        name: Upload Results to Allure TestOps
+        run: |
+          allurectl upload ./allure-results \
+          --launch-id ${{ env.LAUNCH_ID }} \
+          --token ${{ secrets.ALLURE_TOKEN }} \
+          --endpoint "${{ secrets.ALLURE_ENDPOINT }}" \
+          --project-id ${{ env.PROJECT_ID }} 
+        env:
+          PROJECT_ID: 54
+          
+      - if: ${{ inputs.is_run_allure}}               
+      # Шаг для архивации
+        name: Zip Allure results
+        run: zip -r allure-results.zip allure-results
+        
+      - if: ${{ inputs.is_run_allure}}           
+      # Шаг для загрузки архива в Github
+        name: Upload to Allure TestOps
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-results
+          path: allure-results.zip
+          retention-days: 3
+          
       - if: ${{ inputs.is_collect_issues }}
         continue-on-error: true
         name: Collect issues
