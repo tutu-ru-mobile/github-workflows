@@ -50,6 +50,10 @@ on:
         required: true
       ssh_private_key:
         required: true
+      ALLURE_ENDPOINT:
+        required: true
+      ALLURE_TOKEN:
+        required: true
 
 defaults:
   run:
