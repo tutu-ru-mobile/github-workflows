@@ -49,7 +49,7 @@ on:
         description: 'project id in allure'
         default: 54
         type: number
-        required: true
+        required: false
     secrets:
       github_access_token:
         required: true
