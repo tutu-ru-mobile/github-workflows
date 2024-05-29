@@ -45,6 +45,11 @@ on:
         default: false
         type: boolean
         required: false
+      project_id: 
+        description: 'project id in allure'
+        default: false
+        type: string
+        required: true
     secrets:
       github_access_token:
         required: true
@@ -150,7 +155,7 @@ jobs:
           echo "LAUNCH_ID=$LAUNCH_ID" >> $GITHUB_ENV
           echo "LAUNCH_ID=$LAUNCH_ID" >> $GITHUB_OUTPUT
         env:
-          PROJECT_ID: 54
+          PROJECT_ID: ${{ inputs.project_id }}
         
       - if: ${{ inputs.is_run_allure}}       
       # Шаг для загрузки файлов в Allure TestOps
@@ -162,7 +167,7 @@ jobs:
           --endpoint "${{ secrets.ALLURE_ENDPOINT }}" \
           --project-id ${{ env.PROJECT_ID }} 
         env:
-          PROJECT_ID: 54
+          PROJECT_ID: ${{ inputs.project_id }}
           
       - if: ${{ inputs.is_run_allure}}               
       # Шаг для архивации
