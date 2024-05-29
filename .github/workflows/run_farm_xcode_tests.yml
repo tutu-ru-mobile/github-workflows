@@ -130,19 +130,19 @@ jobs:
           name: ${{ inputs.xcresult_name }}
           retention-days: 3
           
-      - if: ${{ inputs.is_run_allure}}   
+      - if: ${{  inputs.is_run_allure && always() }}   
         continue-on-error: true
        # Шаг для создания директории с отчетами
         name: Create folder
         run: mkdir allure-results 
           
-      - if: ${{ inputs.is_run_allure}} 
+      - if: ${{ inputs.is_run_allure && always() }} 
         continue-on-error: true
        # Шаг для преобразования под Allure 
         name: Convert xcresult to Allure results
         run: xcresults export ${{ inputs.xcresult_name }} allure-results  
           
-      - if: ${{ inputs.is_run_allure}} 
+      - if: ${{ inputs.is_run_allure && always() }} 
         continue-on-error: true
       # Шаг для создания лаунча и сохранения его id 
         name: Create launch to Allure
@@ -160,7 +160,7 @@ jobs:
         env:
           PROJECT_ID: ${{ inputs.project_id }}
         
-      - if: ${{ inputs.is_run_allure}}      
+      - if: ${{ inputs.is_run_allure && always() }}      
         continue-on-error: true
       # Шаг для загрузки файлов в Allure TestOps
         name: Upload Results to Allure TestOps
@@ -173,13 +173,13 @@ jobs:
         env:
           PROJECT_ID: ${{ inputs.project_id }}
           
-      - if: ${{ inputs.is_run_allure}}     
+      - if: ${{ inputs.is_run_allure && always() }}     
         continue-on-error: true
       # Шаг для архивации
         name: Zip Allure results
         run: zip -r allure-results.zip allure-results
         
-      - if: ${{ inputs.is_run_allure}}      
+      - if: ${{ inputs.is_run_allure && always() }}      
         continue-on-error: true
       # Шаг для загрузки архива в Github
         name: Upload to Allure TestOps
