@@ -56,9 +56,9 @@ on:
       ssh_private_key:
         required: true
       ALLURE_ENDPOINT:
-        required: true
+        required: false
       ALLURE_TOKEN:
-        required: true
+        required: false
 
 defaults:
   run:
