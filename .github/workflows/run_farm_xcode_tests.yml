@@ -50,6 +50,11 @@ on:
         default: 0
         type: number
         required: false
+      is_parallel_testing:
+        description: 'parallel testing'
+        default: "NO"
+        type: string
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -79,6 +84,10 @@ jobs:
       matrix:
         destination: ['platform=iOS Simulator,name=iPhone 11']
     steps:
+      - name: Shutdown Simulator 
+        run: xcrun simctl shutdown all
+      - name: Clear Simulator
+        run: xcrun simctl erase all
       - name: Start time
         id: starttime
         run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")" >> $GITHUB_OUTPUT
@@ -101,6 +110,7 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 120
         run: |
+          if [ "${{ inputs.is_parallel_testing }}" == "YES" ]; then
             xcodebuild clean test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
@@ -109,13 +119,28 @@ jobs:
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
             -test-iterations 5 \
-            -parallel-testing-enabled YES \
+            -parallel-testing-enabled ${{ inputs.is_parallel_testing }} \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO \
-            | bundle exec xcpretty
+            | bundle exec xcpretty;
+          else
+            xcodebuild clean test \
+            -skipPackagePluginValidation \
+            -workspace ${{ inputs.workspace_name }} \
+            -scheme ${{ inputs.scheme_name }} \
+            -destination "${destination}" \
+            -resultBundlePath '${{ inputs.xcresult_name }}' \
+            -retry-tests-on-failure \
+            -test-iterations 5 \
+            -parallel-testing-enabled ${{ inputs.is_parallel_testing }} \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            ONLY_ACTIVE_ARCH=NO \
+            | bundle exec xcpretty;
+          fi
         env:
-           destination: ${{ matrix.destination }}
+          destination: ${{ matrix.destination }}
       - name: Remove ci tag
         run: rm .ci_tag
       - if: always()
