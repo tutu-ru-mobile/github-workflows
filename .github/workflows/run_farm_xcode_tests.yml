@@ -52,8 +52,8 @@ on:
         required: false
       is_parallel_testing:
         description: 'parallel testing'
-        default: false
-        type: boolean
+        default: "NO"
+        type: string
         required: false
     secrets:
       github_access_token:
@@ -110,7 +110,7 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 120
         run: |
-          if [ "${{ inputs.is_run_allure }}" == "true" ]; then
+          if [ "${{ inputs.is_run_allure }}" == "YES" ]; then
             xcodebuild clean test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
@@ -119,7 +119,7 @@ jobs:
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
             -test-iterations 5 \
-            -parallel-testing-enabled YES \
+            -parallel-testing-enabled '${{ inputs.is_run_allure }}' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO \
@@ -133,7 +133,7 @@ jobs:
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
             -test-iterations 5 \
-            -parallel-testing-enabled NO \
+            -parallel-testing-enabled '${{ inputs.is_run_allure }}' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO \
