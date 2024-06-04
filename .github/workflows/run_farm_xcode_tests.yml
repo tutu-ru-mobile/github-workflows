@@ -52,7 +52,7 @@ on:
         required: false
       is_parallel_testing:
         description: 'parallel testing'
-        default: "NO"
+        default: "YES"
         type: string
         required: false
     secrets:
@@ -110,7 +110,6 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 120
         run: |
-          if [ "${{ inputs.is_parallel_testing }}" == "YES" ]; then
             xcodebuild clean test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
@@ -124,21 +123,6 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO \
             | bundle exec xcpretty;
-          else
-            xcodebuild clean test \
-            -skipPackagePluginValidation \
-            -workspace ${{ inputs.workspace_name }} \
-            -scheme ${{ inputs.scheme_name }} \
-            -destination "${destination}" \
-            -resultBundlePath '${{ inputs.xcresult_name }}' \
-            -retry-tests-on-failure \
-            -test-iterations 5 \
-            -parallel-testing-enabled ${{ inputs.is_parallel_testing }} \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            ONLY_ACTIVE_ARCH=NO \
-            | bundle exec xcpretty;
-          fi
         env:
           destination: ${{ matrix.destination }}
       - name: Remove ci tag
