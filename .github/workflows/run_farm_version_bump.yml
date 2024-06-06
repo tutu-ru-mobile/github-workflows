@@ -41,7 +41,7 @@ jobs:
     runs-on: tutu-mac-builder
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.1.0
         with:
           ref: main
       - run: bundle install
