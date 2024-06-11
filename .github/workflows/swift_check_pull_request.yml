@@ -7,10 +7,11 @@ on:
         description: 'Regex pattern for release branch. Like: release/(transport|avia|bus|train)-'
         type: string
         required: true
-      failured_tests_dir:
+      failured_tests_data:
         description: "Directory in which failured tests logs are placed"
         type: string
         required: false
+        default: ""
       show_tests_results:
         description: "Flag indicates that need to show failured tests logs"
         type: boolean
@@ -43,6 +44,22 @@ jobs:
           ./download_project_utils.sh
           cp -f vendor/ProjectUtils/Scripts/Dangerfile.swift Dangerfile.swift
 
+      - if: ${{ inputs.failured_tests_data != '' }}
+        name: Download failured tests data
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.failured_tests_data }}
+
+      - if: ${{ inputs.failured_tests_data != '' }}
+        name: Unpack tests data
+        run: |
+          unzip ${{ inputs.failured_tests_data }}.zip
+          if [ -d ${{ inputs.failured_tests_data }} ]; then
+            echo "Failured tests data unzip successfully"
+          else
+            echo "Unzip tests data failured!"
+          fi
+
       - name: Create diff file
         run: |
           URL=https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_BASE_REF...$GITHUB_HEAD_REF
@@ -55,10 +72,13 @@ jobs:
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
           DANGER_RELEASE_BRANCH_PATTERN: ${{ inputs.release_branch_pattern }}
-          DANGER_FAILURED_TESTS_DIR: ${{ inputs.failured_tests_dir }}
+          DANGER_FAILURED_TESTS_DIR: ${{ inputs.failured_tests_data }}
           DANGER_SHOW_TESTS_RESUILTS: ${{ inputs.show_tests_results }}
           DANGER_DIFF_FILE: "diff.txt"
 
       - if: always()
         name: Post
-        run: rm diff.txt
+        run: |
+          rm diff.txt
+          rm -rf ${{ inputs.failured_tests_data }}.zip
+          rm -rf ${{ inputs.failured_tests_data }}
