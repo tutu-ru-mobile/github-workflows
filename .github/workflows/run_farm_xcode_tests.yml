@@ -159,7 +159,7 @@ jobs:
         run: |
           RESULT=$(allurectl launch create --output json ./allure-results \
             --token ${{ secrets.ALLURE_TOKEN }} \
-            --endpoint "${{ secrets.ALLURE_ENDPOINT }}" \
+            --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
             --project-id ${{ env.PROJECT_ID }} \
             --launch-name "Прогон iOS автотестов на CI")
           LAUNCH_ID=$(echo "$RESULT" | jq -r '.[0].id')
@@ -177,7 +177,7 @@ jobs:
           allurectl upload ./allure-results \
           --launch-id ${{ env.LAUNCH_ID }} \
           --token ${{ secrets.ALLURE_TOKEN }} \
-          --endpoint "${{ secrets.ALLURE_ENDPOINT }}" \
+          --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
           --project-id ${{ env.PROJECT_ID }} 
         env:
           PROJECT_ID: ${{ inputs.project_id }}
