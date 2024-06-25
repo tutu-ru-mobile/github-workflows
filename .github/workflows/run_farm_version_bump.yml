@@ -51,4 +51,9 @@ jobs:
         run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
       - if: ${{ inputs.is_run_fastlane }}
         name: Bump
-        run: bundle exec fastlane ${{ inputs.bump_type }}
+        run: |
+          for podspec in $(ls *.podspec | sed 's/.podspec$//'); do \
+            echo "Deleting repository: $podspec" \
+            && rm -rf ~/.cocoapods/repos/$podspec; \
+          done \
+          && bundle exec fastlane "${{ github.event.inputs.bumpType }}"
