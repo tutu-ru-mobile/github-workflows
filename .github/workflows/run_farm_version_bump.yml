@@ -51,6 +51,7 @@ jobs:
         run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
       - if: ${{ inputs.is_run_fastlane }}
         name: Bump
+        # Исправление как в https://github.com/tutu-ru-mobile/ios-features/blob/fe81d704ff157dab5522c91bc0329bd4ea2de3ab/.github/workflows/bump.yml#L32-L35
         run: |
           for podspec in $(ls *.podspec | sed 's/.podspec$//'); do \
             echo "Deleting repository: $podspec" \
