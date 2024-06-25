@@ -56,4 +56,4 @@ jobs:
             echo "Deleting repository: $podspec" \
             && rm -rf ~/.cocoapods/repos/$podspec; \
           done \
-          && bundle exec fastlane "${{ github.event.inputs.bumpType }}"
+          && bundle exec fastlane ${{ inputs.bump_type }}
