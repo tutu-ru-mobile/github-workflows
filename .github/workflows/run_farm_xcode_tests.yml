@@ -127,10 +127,10 @@ jobs:
           destination: ${{ matrix.destination }}
       - name: Remove ci tag
         run: rm .ci_tag
-      - if: always()
+      - if: failure()
         name: Prepare xcresults
         run: zip -r logs.zip ${{ inputs.xcresult_name }} || echo "Nothing to archive"
-      - if: always()
+      - if: failure()
         continue-on-error: true
         name: Archive xcresults
         uses: actions/upload-artifact@v3
@@ -237,3 +237,12 @@ jobs:
           echo "hours=${hours}" >> $GITHUB_OUTPUT
           echo "minutes=${minutes}" >> $GITHUB_OUTPUT
           echo "seconds=${seconds}" >> $GITHUB_OUTPUT
+
+      - if: always()     
+        continue-on-error: true
+        name: Shutdown Simulator 
+        run: xcrun simctl shutdown all
+      - if: always()
+        continue-on-error: true
+        name: Clear Simulator
+        run: xcrun simctl erase all
