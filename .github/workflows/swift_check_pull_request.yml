@@ -23,7 +23,7 @@ jobs:
     if: github.event_name  == 'pull_request'
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v4
 
       - name: Setup SSH
         uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
@@ -41,9 +41,7 @@ jobs:
           curl -H "Accept: application/vnd.github.v3.diff" -H "Authorization: token ${{ secrets.github_access_token }}" $URL > diff.txt
 
       - name: Danger
-        uses: docker://ghcr.io/danger/danger-swift:3.18.1
-        with:
-            args: --failOnErrors -dangerfile Dangerfile.swift
+        run: danger-swift ci --failOnErrors --dangerfile Dangerfile.swift
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
           DANGER_RELEASE_BRANCH_PATTERN: ${{ inputs.release_branch_pattern }}
