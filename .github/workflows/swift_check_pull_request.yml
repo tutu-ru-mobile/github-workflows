@@ -13,13 +13,17 @@ on:
       ssh_private_key:
         required: true
 
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   check_pr:
-    runs-on: ubuntu-latest
+    runs-on: [tutu-mac-builder]
     if: github.event_name  == 'pull_request'
     steps:
       - name: Checkout repo
