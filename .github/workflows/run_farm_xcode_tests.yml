@@ -55,6 +55,11 @@ on:
         default: "YES"
         type: string
         required: false
+      run_prebuild_script_path:
+        description: "prebuild script path"
+        default: ''
+        type: string
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -100,6 +105,8 @@ jobs:
       - name: Change origin to ssh link
         run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
       - run: bundle install
+      - if: ${{ inputs.run_prebuild_script_path != ''}}
+        run: ${{ inputs.run_prebuild_script_path }}
       - if: ${{ inputs.is_run_xcodegen }}
         name: Generate xcodeproj
         run: |

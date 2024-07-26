@@ -25,6 +25,11 @@ on:
         default: false
         type: boolean
         required: false
+      run_prebuild_script_path:
+        description: "prebuild script path"
+        default: ''
+        type: string
+        required: false  
     secrets:
       github_access_token:
         required: true
@@ -70,6 +75,8 @@ jobs:
       - uses: tutu-ru-mobile/github-workflows/action_select_xcode_version@v1.0.5
       - uses: tutu-ru-mobile/github-workflows/action_install_dependencies@v1.0.5
       - uses: tutu-ru-mobile/github-workflows/action_restore_cache_cocoapods@v1.0.5
+      - if: ${{ inputs.run_prebuild_script_path != ''}}
+        run: ${{ inputs.run_prebuild_script_path }}
       - if: ${{ inputs.is_run_xcodegen }}
         name: Generate xcodeproj
         run: |
