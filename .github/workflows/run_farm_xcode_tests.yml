@@ -119,7 +119,7 @@ jobs:
         run: |
             xcodebuild clean test \
             -skipPackagePluginValidation \
-            -workspace ${{ inputs.workspace_name }}" \
+            -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
             -destination "${destination}" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
