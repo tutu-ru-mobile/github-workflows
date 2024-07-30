@@ -22,11 +22,11 @@ on:
       workspace_name:
         description: 'Path to workspace file'
         type: string
-        required: true
+        required: false
       project_name:
         description: 'Path to workspace file'
         type: string
-        required: true
+        required: false
       scheme_name:
         description: 'Scheme name to run'
         type: string
