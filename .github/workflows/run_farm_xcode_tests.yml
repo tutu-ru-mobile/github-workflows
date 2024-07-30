@@ -23,6 +23,10 @@ on:
         description: 'Path to workspace file'
         type: string
         required: true
+      project_name:
+        description: 'Path to workspace file'
+        type: string
+        required: true
       scheme_name:
         description: 'Scheme name to run'
         type: string
@@ -57,11 +61,6 @@ on:
         required: false
       run_prebuild_script_path:
         description: "prebuild script path"
-        default: ''
-        type: string
-        required: false
-      is_only_testing:
-        description: 'Only UI testing'
         default: ''
         type: string
         required: false
@@ -122,15 +121,18 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 120
         run: |
-          if [[ -n "${{ inputs.is_only_testing }}" ]]; then
-            TESTING_OPTION="-only-testing:${{ inputs.is_only_testing }}"
+          if [[ -n "${{ inputs.workspace_name }}" ]]; then
+            BUILD_OPTION="-workspace ${{ inputs.workspace_name }}"
+          elif [[ -n "${{ inputs.project_name }}" ]]; then
+            BUILD_OPTION="-project ${{ inputs.project_name }}"
           else
-            TESTING_OPTION=""
+            echo "Ошибка: вы должны указать либо рабочее пространство, либо проект"
+            exit 1
           fi
 
             xcodebuild clean test \
             -skipPackagePluginValidation \
-            -workspace ${{ inputs.workspace_name }} \
+            $BUILD_OPTION \
             -scheme ${{ inputs.scheme_name }} \
             -destination "${destination}" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
