@@ -123,6 +123,7 @@ jobs:
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
+            -only-testing \
             -destination "${destination}" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
