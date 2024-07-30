@@ -60,6 +60,11 @@ on:
         default: ''
         type: string
         required: false
+      is_only_testing:
+        description: 'Only UI testing'
+        default: ""
+        type: string
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -117,6 +122,12 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 120
         run: |
+            if [[ -n "${{ inputs.scheme_name }}" ]]; then
+              TESTING_OPTION="-only-testing ${{ inputs.scheme_name }} \"
+            else
+              TESTING_OPTION=""
+            fi
+
             xcodebuild clean test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
