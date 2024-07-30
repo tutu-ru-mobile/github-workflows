@@ -62,7 +62,7 @@ on:
         required: false
       is_only_testing:
         description: 'Only UI testing'
-        default: ""
+        default: ''
         type: string
         required: false
     secrets:
@@ -122,8 +122,8 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 120
         run: |
-            if [[ -n "${{ inputs.scheme_name }}" ]]; then
-              TESTING_OPTION="-only-testing ${{ inputs.scheme_name }} \"
+            if [[ -n "${{ inputs.is_only_testing }}" ]]; then
+              TESTING_OPTION="-only-testing ${{ inputs.is_only_testing }} \"
             else
               TESTING_OPTION=""
             fi
