@@ -126,6 +126,7 @@ jobs:
             -retry-tests-on-failure \
             -test-iterations 5 \
             -parallel-testing-enabled ${{ inputs.is_parallel_testing }} \
+            -only-testing:UI \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO \
