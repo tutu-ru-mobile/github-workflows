@@ -122,12 +122,12 @@ jobs:
       - name: Compile and Test
         timeout-minutes: 120
         run: |
-            if [[ -n "${{ inputs.is_only_testing }}" ]]; then
-              TESTING_OPTION="-only-testing ${{ inputs.is_only_testing }} \"
-            else
-              TESTING_OPTION=""
-            fi
-
+          if [[ -n "${{ inputs.is_only_testing }}" ]]; then
+            TESTING_OPTION="-only-testing ${{ inputs.is_only_testing }}"
+          else
+            TESTING_OPTION=""
+          fi
+          
             xcodebuild clean test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
