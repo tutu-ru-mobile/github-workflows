@@ -60,6 +60,10 @@ on:
         default: ''
         type: string
         required: false
+      is_only_testing:
+        description: 'Path to target UITests'
+        type: string
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -114,16 +118,20 @@ jobs:
           make generate-xcodeproj
       - name: Create ci tag
         run: touch .ci_tag
-      - name: list 
-        run: xcodebuild -list -workspace SampleApp.xcworkspace 
       - name: Compile and Test
         timeout-minutes: 120
         run: |
+          if [ -n "${{ inputs.is_only_testing }}" ]; then
+            ONLY_TESTING_CMD="-only-testing ${{ inputs.is_only_testing }}"
+          else
+            ONLY_TESTING_CMD=""
+          fi
+
             xcodebuild clean test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
-            -only-testing SampleAppUITests \
+           ${ONLY_TESTING_CMD} \
             -destination "${destination}" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
