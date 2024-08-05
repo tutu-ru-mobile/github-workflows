@@ -28,7 +28,8 @@ runs:
       run: |
         CURRENT_DATE=$(date +"%Y%m%d%H%M%S")
         ARTIFACTORY_FILE=${{ inputs.artifactory-url }}/${{ inputs.artifactory-project }}/${{ inputs.artifactory-slug }}/$CURRENT_DATE/${{ inputs.filename }}
-        curl -${{ inputs.artifactory-user }}:${{ inputs.artifactory-token }} \
+        # curl -${{ inputs.artifactory-user }}:${{ inputs.artifactory-token }} \
+        curl -${{ env.ARTIFACTORY_USERNAME }}:${{ inputs.ARTIFACTORY_TOKEN }} \
           -X PUT -v \
           -T ${{ inputs.filename }} \
           $ARTIFACTORY_FILE
