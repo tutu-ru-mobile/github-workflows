@@ -128,13 +128,14 @@ jobs:
           fi
 
           # Предварительный шаг clean
-            xcodebuild clean \
-            -skipPackagePluginValidation \
-            -workspace SampleApp/SampleApp.xcworkspace \
-            -scheme Feed-Package
-          
+            swift package resolve
+            swift package clean
+            rm -rf ~/Library/Developer/Xcode/DerivedData/*
+            rm -rf ~/Library/Caches/com.apple.dt.Xcode/*
+
+
           # Основной шаг test
-            xcodebuild test \
+            xcodebuild clean test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
