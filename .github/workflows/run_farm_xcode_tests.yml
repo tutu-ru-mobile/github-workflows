@@ -127,7 +127,7 @@ jobs:
             ONLY_TESTING_CMD=""
           fi
 
-            xcodebuild clean test \
+            xcodebuild test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
