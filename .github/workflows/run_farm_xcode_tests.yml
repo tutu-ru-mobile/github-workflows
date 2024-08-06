@@ -128,8 +128,6 @@ jobs:
           fi
 
           # Предварительный шаг clean
-            swift package resolve
-            swift package clean
             rm -rf ~/Library/Developer/Xcode/DerivedData/*
             rm -rf ~/Library/Caches/com.apple.dt.Xcode/*
 
