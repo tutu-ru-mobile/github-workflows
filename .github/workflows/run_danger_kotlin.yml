@@ -1,0 +1,39 @@
+name: 'Run danger-kotlin'
+
+on:
+  pull_request:
+    branches:
+      - "**"
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      github_access_token:
+        required: true
+      maven_readonly_token:
+        required: true
+
+env:
+  MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run detekt
+        if: success() || failure()
+        run: ./gradlew detekt
+
+      - name: Run danger
+        uses: tutu-ru-mobile/github-workflows/action_run_danger_kotlin@main
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
