@@ -1,10 +1,6 @@
 name: 'Run danger-kotlin'
 
 on:
-  pull_request:
-    branches:
-      - "**"
-  workflow_dispatch:
   workflow_call:
     secrets:
       github_access_token:
