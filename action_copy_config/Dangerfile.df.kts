@@ -9,7 +9,7 @@ register.plugin(DetektPlugin)
 
 danger(args) {
     onGitHub {
-        val file = File("build/reports/detekt/report.xml")
+        val file = File("build/reports/detekt/merge.xml")
         if (!file.exists()) {
             warn("No detekt report found")
         } else {
