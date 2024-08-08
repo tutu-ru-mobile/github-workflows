@@ -1,0 +1,19 @@
+name: "Copy config to run dir"
+description: "Copy config to run dir"
+
+inputs:
+  file_path:
+    description: "File path"
+    required: true
+runs:
+  using: "composite"
+
+  steps:
+    - name: Copy config
+      continue-on-error: false
+      run: |
+        target_dir="$(dirname ${{ inputs.file_path }})"
+        target_file="$(basename ${{ inputs.file_path }})"
+        mkdir -p "$target_dir"
+        cp -n "${{ github.action_path }}/${{ inputs.file_path }}" "$target_dir/$target_file"
+      shell: bash
