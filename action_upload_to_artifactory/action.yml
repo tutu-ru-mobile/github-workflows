@@ -1,0 +1,36 @@
+name: "Upload to artifactory"
+
+inputs:
+  artifactory-url:
+    description: "URL"
+    required: true
+  artifactory-user:
+    description: "username"
+    required: true
+  artifactory-token:
+    description: "token"
+    required: true
+  artifactory-project:
+    description: "project"
+    required: true
+  artifactory-slug:
+    description: "slug"
+    required: true
+  filename:
+    description: "filename"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Upload to artifactory
+      shell: bash
+      run: |
+        CURRENT_DATE=$(date +"%Y%m%d%H%M%S")
+        ARTIFACTORY_FILE=${{ inputs.artifactory-url }}/${{ inputs.artifactory-project }}/${{ inputs.artifactory-slug }}/$CURRENT_DATE/${{ inputs.filename }}
+        curl -u${{ env.ARTIFACTORY_USERNAME }}:${{ env.ARTIFACTORY_TOKEN }} \
+          -X PUT -v \
+          -T ${{ inputs.filename }} \
+          $ARTIFACTORY_FILE
+        
+        echo "Artifactory URL is:  $ARTIFACTORY_FILE" >> $GITHUB_STEP_SUMMARY
