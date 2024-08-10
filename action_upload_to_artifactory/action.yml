@@ -16,10 +16,10 @@ inputs:
   artifactory-slug:
     description: "slug"
     required: true
-  what_to_archive:
+  what-to-archive:
     description: "filename or path to folder"
     required: true
-  filename_in_artifactory:
+  filename-in-artifactory:
     description: "filename for artifactory"
     default: "artifact"
 
@@ -29,8 +29,8 @@ runs:
     - name: Upload to artifactory
       shell: bash
       run: |
-        FILE_TO_UPLOAD=${{inputs.filename_in_artifactory}}.zip
-        zip -r $FILE_TO_UPLOAD ${{inputs.what_to_archive}}
+        FILE_TO_UPLOAD=${{inputs.filename-in-artifactory}}.zip
+        zip -r $FILE_TO_UPLOAD ${{inputs.what-to-archive}}
 
         CURRENT_DATE=$(date +"%Y%m%d%H%M%S")
         ARTIFACTORY_FILE=${{ inputs.artifactory-url }}/${{ inputs.artifactory-project }}/${{ inputs.artifactory-slug }}/$CURRENT_DATE/$FILE_TO_UPLOAD
