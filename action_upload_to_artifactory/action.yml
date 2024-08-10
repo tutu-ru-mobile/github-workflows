@@ -16,9 +16,12 @@ inputs:
   artifactory-slug:
     description: "slug"
     required: true
-  filename:
-    description: "filename"
+  what_to_archive:
+    description: "filename or path to folder"
     required: true
+  filename_in_artifactory:
+    description: "filename for artifactory"
+    default: "artifact"
 
 runs:
   using: "composite"
@@ -26,11 +29,16 @@ runs:
     - name: Upload to artifactory
       shell: bash
       run: |
+        FILE_TO_UPLOAD=${{inputs.filename_in_artifactory}}.zip
+        zip -r $FILE_TO_UPLOAD ${{inputs.what_to_archive}}
+
         CURRENT_DATE=$(date +"%Y%m%d%H%M%S")
-        ARTIFACTORY_FILE=${{ inputs.artifactory-url }}/${{ inputs.artifactory-project }}/${{ inputs.artifactory-slug }}/$CURRENT_DATE/${{ inputs.filename }}
+        ARTIFACTORY_FILE=${{ inputs.artifactory-url }}/${{ inputs.artifactory-project }}/${{ inputs.artifactory-slug }}/$CURRENT_DATE/$FILE_TO_UPLOAD
         curl -u${{ env.ARTIFACTORY_USERNAME }}:${{ env.ARTIFACTORY_TOKEN }} \
           -X PUT -v \
-          -T ${{ inputs.filename }} \
+          -T $FILE_TO_UPLOAD \
           $ARTIFACTORY_FILE
-        
+
+        rm -rf $FILE_TO_UPLOAD
+
         echo "Artifactory URL is:  $ARTIFACTORY_FILE" >> $GITHUB_STEP_SUMMARY
