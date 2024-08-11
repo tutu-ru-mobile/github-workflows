@@ -103,6 +103,9 @@ jobs:
 
       - name: Build APKs
         run: ./gradlew ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
 
       # - name: Build APKs
       #   uses: gradle/gradle-build-action@v2
