@@ -1,0 +1,157 @@
+name: Run Farm Android UI tests
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: "Branch to checkout"
+        type: string
+        required: false
+        default: ""
+      is_gradle_cache_debug_enabled:
+        description: "Enable or disable Gradle build cache"
+        type: boolean
+        default: true
+        required: false
+      flank_configuration_file:
+        description: "Path to Flank configuration"
+        type: string
+        default: "./ci/flank/pr_tests_config.yml"
+        required: false
+      upload_test_results:
+        description: "Uploads flank test results to be able to use them from outer jobs. If specified, uploaded aritfacts will be stored in $uploaded_test_artifact_name folder"
+        type: boolean
+        required: false
+        default: false
+      assemble_task:
+        type: string
+        default: "assembleDebug"
+        required: false
+        description: "Gradle task to build target app APK"
+      assemble_android_test_task:
+        type: string
+        default: "assembleDebugAndroidTest"
+        required: false
+        description: "Gradle task to build target AndroidTest APK"
+      output_apk_build_path:
+        type: string
+        default: "sample_app/build/outputs/apk/debug/sample_app-debug.apk"
+        required: false
+        description: "Path to target app APK"
+      output_test_apk_build_path:
+        type: string
+        default: "sample_app/build/outputs/apk/androidTest/debug/sample_app-debug-androidTest.apk"
+        required: false
+        description: "Path to target app APK"
+      uploaded_app_artifact_name:
+        type: string
+        default: "sample_app-debug"
+        required: false
+        description: "Name of the folder where app artifact was uploaded"
+      uploaded_test_artifact_name:
+        type: string
+        default: "sample_app-debug-androidTest"
+        required: false
+        description: "Name of thr folder where test artifact was uploaded"
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: false
+      maven_readonly_token:
+        required: true
+      firebase_key:
+        required: true
+      telemetry_url:
+        required: false
+      telemetry_slug:
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.flank_configuration_file }}
+  cancel-in-progress: true
+
+jobs:
+  run_ui_tests:
+    runs-on: tutu-mac-builder
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - name: Start measuring job duration
+        id: pipeline_start_date
+        uses: tutu-ru-mobile/github-workflows/action_get_current_date@main
+
+      - name: Get checkout branch
+        run: |
+          if [ ${{ inputs.branch == '' }} ] 
+          then
+            CHECKOUT_BRANCH=${{ github.ref }};
+          else
+            CHECKOUT_BRANCH=${{ inputs.branch }};
+          fi
+          
+          echo "Input branch: ${{ inputs.branch }}"
+          echo "Current branch: ${{ github.ref }}"
+          echo "Result branch: $CHECKOUT_BRANCH"
+          echo "checkout_branch=$CHECKOUT_BRANCH" >> $GITHUB_ENV
+
+      - name: Checkout project
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.checkout_branch }}
+
+      - name: Build APKs
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}
+          cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.uploaded_app_artifact_name }}
+          path: ${{ inputs.output_apk_build_path }}
+
+      - name: Upload androidTest APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.uploaded_test_artifact_name }}
+          path: ${{ inputs.output_test_apk_build_path }}
+
+      - name: Download APKs
+        uses: actions/download-artifact@v3
+
+      - name: Run instrumented tests
+        id: flank_run
+        uses: Flank/flank@master
+        with:
+          service_account: ${{ secrets.firebase_key }}
+          platform: android
+          flank_configuration_file: ${{ inputs.flank_configuration_file }}
+
+      - name: Upload test results
+        if: inputs.upload_test_results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.uploaded_test_artifact_name }}
+          path: ${{ steps.flank_run.outputs.local_results_directory }}
+
+      - name: Stop measuring workflow duration
+        id: seconds_from_date
+        uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
+        with:
+          from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
+
+      - name: Send workflow telemetry
+        uses: tutu-ru-mobile/send-ci-telemetry@main
+        with:
+          url: ${{ secrets.telemetry_url }}
+          slug: ${{ secrets.telemetry_slug }}
+          metrics_name: "test_time_duration"
+          metrics_value: ${{ steps.seconds_from_date.outputs.seconds-from-date }}
+          metrics_labels: |
+            {"os": "android", "app": "${{ inputs.uploaded_app_artifact_name }}", "test_type": "ui"}

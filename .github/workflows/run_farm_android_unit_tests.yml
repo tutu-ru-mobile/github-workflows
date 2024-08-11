@@ -1,0 +1,46 @@
+name: Run Android Unit tests
+
+on:
+  workflow_call:
+    inputs:
+      is_gradle_cache_debug_enabled:
+        description: "Enable or disable Gradle build cache"
+        type: boolean
+        default: true
+        required: false
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: false
+      maven_readonly_token:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run_unit_tests:
+    runs-on: tutu-mac-builder
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.12.0
+        with:
+          all_but_latest: true
+          access_token: ${{ secrets.github_access_token }}
+
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: Run unit tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test --no-daemon
+          cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
