@@ -116,17 +116,17 @@ jobs:
       #     MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
       #     GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.uploaded_app_artifact_name }}
-          path: ${{ inputs.output_apk_build_path }}
+      # - name: Upload APK
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ inputs.uploaded_app_artifact_name }}
+      #     path: ${{ inputs.output_apk_build_path }}
 
-      - name: Upload androidTest APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.uploaded_test_artifact_name }}
-          path: ${{ inputs.output_test_apk_build_path }}
+      # - name: Upload androidTest APK
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ${{ inputs.uploaded_test_artifact_name }}
+      #     path: ${{ inputs.output_test_apk_build_path }}
 
       - name: Run instrumented tests
         id: flank_run
