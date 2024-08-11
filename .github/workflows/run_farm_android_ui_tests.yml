@@ -128,9 +128,6 @@ jobs:
           name: ${{ inputs.uploaded_test_artifact_name }}
           path: ${{ inputs.output_test_apk_build_path }}
 
-      - name: Download APKs
-        uses: actions/download-artifact@v3
-
       - name: Run instrumented tests
         id: flank_run
         uses: Flank/flank@master
