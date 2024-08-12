@@ -91,7 +91,7 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        destination: ['platform=iOS Simulator,name=iPhone 11']
+        destination: ['platform=iOS Simulator,name=iPhone 11,OS=17.4']
     steps:
       - name: Shutdown Simulator 
         run: xcrun simctl shutdown all
