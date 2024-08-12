@@ -9,52 +9,51 @@ register.plugin(DetektPlugin)
 
 danger(args) {
     onGitHub {
-        checkPRContents()
-        checkBranch()
-        runDetektCheck()
-
         fun checkPRContents() {
             val insertions = pullRequest.additions ?: 0
-            val body = pullRequest?.body
             if (insertions > 750) {
                 warn("Размер PR ($insertions строк) превышает рекомендуемый размер (750 строк)")
             }
-            if (body == null) {
+            if (pullRequest.body?.isNullOrEmpty() == true) {
                 warn("Отсутствует описание PR")
-
-                if (!pullRequest.title.contains("NO-ISSUE") && !body.contains("https://hq.tutu.ru/")) {
-                    warn("Отсутствует ссылка на задачу в Jira")
-                }
+            }
+            if (!pullRequest.title.contains("NO-ISSUE") && pullRequest.body?.contains("https://hq.tutu.ru/") == false) {
+                warn("Отсутствует ссылка на задачу в Jira")
             }
         }
 
         fun checkBranch() {
             val releaseRegex = Regex("^release/([a-zA-Z]+_)?v[0-9.]+$")
-            val releasePRRegex = Regex("[1-9]\\d*(\\.[1-9]\\d*)*")
-            val testOrFeatureRegex = "^(feature|tests)/([A-Z]+-[0-9]+|NO-ISSUE)-[a-zA-Z].+$"
-            val testOrFeaturePRRegex = "^([A-Z]+-[0-9]+|NO-ISSUE):.+$"
+            val releasePRRegex = Regex("\\d\\.\\d\\.\\d")
+            val testOrFeatureRegex = Regex("^(feature|tests)/([A-Z]+-[0-9]+|NO-ISSUE)_[a-zA-Z_]+\$")
+            val testOrFeaturePRRegex = Regex("^([A-Z]+-[0-9]+|NO-ISSUE):")
+            val russianLettersRegex = Regex("[а-яА-ЯёЁ]+")
 
             when {
-                pullRequest.head.label.mathches(releaseRegex) -> {
-                    if (!pullRequest.title.mathches(releasePRRegex)) {
-                        warn("Релиз должен иметь номер версии")
+                pullRequest.head.ref.matches(releaseRegex) ->
+                    if (releasePRRegex !in pullRequest.title) {
+                        warn("Релиз должен иметь номер версии в формате **1.2.3** или **v.1.2.3**")
+                    }
+                pullRequest.head.ref.matches(testOrFeatureRegex) -> {
+                    if (testOrFeaturePRRegex !in pullRequest.title) {
+                        warn(
+                            "ПР должен начинаться с идентификатора задачи в Jira в формате:\n" +
+                                    "**JIRA-TICKET-ID: Наименование ПР** (например **USPACE-123: Фикс кнопки**)"
+                        )
+                    }
+                    if (russianLettersRegex !in pullRequest.title) {
+                        warn("ПР должен иметь заголовок на русском языке (можно использовать английские термины)")
                     }
                 }
-                pullRequest.head.label.matches(testOrFeatureRegex) -> {
-                    if (!pullRequest.title.mathches(testOrFeaturePRRegex)) {
-                        warn("ПР должен начинаться с идентификатора задачи в Jira в формате '" +
-                                "JIRA-TICKET-ID: Наименование ПР' (например: 'USPACE-123: Фикс кнопки'). " +
-                                "Подробности в документации: https://dom.tutu.ru/display/MOBILEDEV/Pull+request+standard")
-                    }
-                }
-                else -> {
-                    warn("Название ветки должно начинаться с feature/, tests/ или release/.\n" +
-                            "Если ветка начинается на feature/ или test/, то далее должно быть MAPP-{номер задачи} " +
-                            "или NO-ISSUE или USPACE-{номер задачи} или TUTUID-{номер задачи},\n" +
-                            "если ветка начинается на release/, то далее должен быть номер версии,\n" +
-                            "к примеру release/v1.5.0 или release/avia_v1.5.0"
+                else ->
+                    warn(
+                        "1) Название ветки должно начинаться с **feature/**, **tests/** или **release/**\n" +
+                                "2) Далее идет id задачи из jira в верхнем регистре\n" +
+                                "3) Через нижнее подчеркивание идет краткое название задачи\n" +
+                                "Например, **feature/MAPP-1111_do_something_good** или **feature/NO-ISSUE_do_something_good**\n" +
+                                "Если ветка начинается на **release/**, то далее должен быть номер версии,\n" +
+                                "к примеру **release/v1.5.0** или **release/avia_v1.5.0**"
                     )
-                }
             }
         }
 
@@ -73,5 +72,9 @@ danger(args) {
                 }
             }
         }
+
+        checkPRContents()
+        checkBranch()
+        runDetektCheck()
     }
 }

@@ -10,6 +10,7 @@ on:
 
 env:
   TUTU_READ_PACKAGES_TOKEN: ${{ secrets.tutu_read_packages_token }}
+  MAVEN_READONLY_TOKEN: ${{ secrets.tutu_read_packages_token }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
