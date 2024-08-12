@@ -22,29 +22,26 @@ danger(args) {
             }
         }
 
-        fun String.hasRussianLetters(): Boolean {
-            contains(Regex("[а-яА-ЯёЁ]+"))
-        }
-
         fun checkBranch() {
             val releaseRegex = Regex("^release/([a-zA-Z]+_)?v[0-9.]+$")
-            val releasePRRegex = Regex("[1-9]\\d*(\\.[1-9]\\d*)*")
+            val releasePRRegex = Regex("\\d\\.\\d\\.\\d")
             val testOrFeatureRegex = Regex("^(feature|tests)/([A-Z]+-[0-9]+|NO-ISSUE)_[a-zA-Z_]+\$")
             val testOrFeaturePRRegex = Regex("^([A-Z]+-[0-9]+|NO-ISSUE):")
+            val russianLettersRegex = Regex("[а-яА-ЯёЁ]+")
 
             when {
                 pullRequest.head.ref.matches(releaseRegex) ->
-                    if (!pullRequest.title.contains(releasePRRegex)) {
+                    if (releasePRRegex !in pullRequest.title) {
                         warn("Релиз должен иметь номер версии в формате **1.2.3** или **v.1.2.3**")
                     }
                 pullRequest.head.ref.matches(testOrFeatureRegex) -> {
-                    if (!pullRequest.title.contains(testOrFeaturePRRegex)) {
+                    if (testOrFeaturePRRegex !in pullRequest.title) {
                         warn(
                             "ПР должен начинаться с идентификатора задачи в Jira в формате:\n" +
                                     "**JIRA-TICKET-ID: Наименование ПР** (например **USPACE-123: Фикс кнопки**)"
                         )
                     }
-                    if (!pullRequest.title.hasRussianLetters()) {
+                    if (russianLettersRegex !in pullRequest.title) {
                         warn("ПР должен иметь заголовок на русском языке (можно использовать английские термины)")
                     }
                 }
