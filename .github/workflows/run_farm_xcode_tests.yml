@@ -132,7 +132,7 @@ jobs:
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
            ${ONLY_TESTING_CMD} \
-            -destination "${destination}" \
+            -destination "platform=iOS Simulator,name=iPhone 11,OS=17.2" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
             -test-iterations 5 \
