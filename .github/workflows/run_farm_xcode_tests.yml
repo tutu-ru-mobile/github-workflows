@@ -65,7 +65,7 @@ on:
         type: string
         required: false
       test-iterations:
-        description: 'Iterations failed tests'
+        description: 'Retry failed tests'
         default: 2
         type: number
         required: false
