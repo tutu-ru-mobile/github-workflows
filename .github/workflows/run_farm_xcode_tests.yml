@@ -118,6 +118,8 @@ jobs:
           make generate-xcodeproj
       - name: Create ci tag
         run: touch .ci_tag
+      - name: simul
+        run: xcrun simctl list devices
       - name: Compile and Test
         timeout-minutes: 120
         run: |
