@@ -64,6 +64,11 @@ on:
         description: 'Path to target UITests'
         type: string
         required: false
+      test-iterations:
+        description: 'iterations failed tests'
+        default: 2
+        type: number
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -135,7 +140,7 @@ jobs:
             -destination "${destination}" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
-            -test-iterations 5 \
+            -test-iterations '${{ inputs.test-iterations }}' \
             -parallel-testing-enabled ${{ inputs.is_parallel_testing }} \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
