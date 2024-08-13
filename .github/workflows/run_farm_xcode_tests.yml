@@ -46,17 +46,17 @@ on:
         type: boolean
         required: false
       project_id: 
-        description: 'project id in allure'
+        description: 'Project id in allure'
         default: 0
         type: number
         required: false
       is_parallel_testing:
-        description: 'parallel testing'
+        description: 'Parallel testing'
         default: "YES"
         type: string
         required: false
       run_prebuild_script_path:
-        description: "prebuild script path"
+        description: "Prebuild script path"
         default: ''
         type: string
         required: false
@@ -65,7 +65,7 @@ on:
         type: string
         required: false
       test-iterations:
-        description: 'iterations failed tests'
+        description: 'Iterations failed tests'
         default: 2
         type: number
         required: false
