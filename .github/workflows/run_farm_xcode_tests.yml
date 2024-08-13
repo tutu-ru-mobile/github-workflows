@@ -46,23 +46,28 @@ on:
         type: boolean
         required: false
       project_id: 
-        description: 'project id in allure'
+        description: 'Project id in allure'
         default: 0
         type: number
         required: false
       is_parallel_testing:
-        description: 'parallel testing'
+        description: 'Parallel testing'
         default: "YES"
         type: string
         required: false
       run_prebuild_script_path:
-        description: "prebuild script path"
+        description: "Prebuild script path"
         default: ''
         type: string
         required: false
       is_only_testing:
         description: 'Path to target UITests'
         type: string
+        required: false
+      test-iterations:
+        description: 'Retry failed tests'
+        default: 2
+        type: number
         required: false
     secrets:
       github_access_token:
@@ -135,7 +140,7 @@ jobs:
             -destination "${destination}" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
-            -test-iterations 5 \
+            -test-iterations '${{ inputs.test-iterations }}' \
             -parallel-testing-enabled ${{ inputs.is_parallel_testing }} \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
