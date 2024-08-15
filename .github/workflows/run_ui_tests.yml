@@ -1,0 +1,124 @@
+name: ~REUSABLE Run UI tests
+
+on:
+  workflow_call:
+    inputs:
+      run_ptt:
+        type: boolean
+        required: false
+        default: false
+      run_avia:
+        type: boolean
+        required: false
+        default: false
+      run_bus:
+        type: boolean
+        required: false
+        default: false
+      run_train:
+        type: boolean
+        required: false
+        default: false
+      branch:
+        required: false
+        type: string
+        default: ""
+      upload_test_results:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  ptt_ui_tests:
+    name: PTT UI tests
+    if: always() && inputs.run_ptt
+    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@main"
+    with:
+      branch: ${{ inputs.branch }}
+      upload_test_results: ${{ inputs.upload_test_results }}
+      is_gradle_cache_debug_enabled: true
+      marathon_path: "ptt/ptt_app"
+      screenshot_package: "ru.tutu.tutu_emp"
+      uploaded_artifact_name: "ptt"
+      assemble_task: ":ptt:ptt_app:assembleGoogleStoreDebug"
+      assemble_android_test_task: ":ptt:ptt_app:assembleGoogleStoreDebugAndroidTest"
+      marathon_clear_package_data: false
+      marathon_only_record_snapshots: true
+    secrets:
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
+      firebase_key: ${{ secrets.GCLOUD_SERVCE_ACCOUNT_JSON }}
+      telemetry_url: ${{ secrets.TELEMETRY_URL }}
+      telemetry_slug: ${{ secrets.TELEMETRY_SLUG }}
+
+  avia_ui_tests:
+    name: Avia UI tests
+    if: always() && inputs.run_avia
+    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@main"
+    with:
+      branch: ${{ inputs.branch }}
+      upload_test_results: ${{ inputs.upload_test_results }}
+      is_gradle_cache_debug_enabled: true
+      marathon_path: "avia_app"
+      screenshot_package: "ru.tutu.avia"
+      uploaded_artifact_name: "avia"
+      assemble_task: "avia_app:assembleGoogleStoreDebug"
+      assemble_android_test_task: "avia_app:assembleGoogleStoreDebugAndroidTest"
+      marathon_clear_package_data: false
+      marathon_only_record_snapshots: true
+    secrets:
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
+      firebase_key: ${{ secrets.GCLOUD_SERVCE_ACCOUNT_JSON }}
+      telemetry_url: ${{ secrets.TELEMETRY_URL }}
+      telemetry_slug: ${{ secrets.TELEMETRY_SLUG }}
+
+  train_ui_tests:
+    name: Train UI tests
+    if: always() && inputs.run_train
+    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@main"
+    with:
+      branch: ${{ inputs.branch }}
+      upload_test_results: ${{ inputs.upload_test_results }}
+      is_gradle_cache_debug_enabled: true
+      marathon_path: "train_app"
+      screenshot_package: "ru.tutu.trainapp"
+      uploaded_artifact_name: "train"
+      assemble_task: "train_app:assembleGoogleStoreDebug"
+      assemble_android_test_task: "train_app:assembleGoogleStoreDebugAndroidTest"
+      marathon_clear_package_data: false
+      marathon_only_record_snapshots: true
+    secrets:
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
+      firebase_key: ${{ secrets.GCLOUD_SERVCE_ACCOUNT_JSON }}
+      telemetry_url: ${{ secrets.TELEMETRY_URL }}
+      telemetry_slug: ${{ secrets.TELEMETRY_SLUG }}
+
+  bus_ui_tests:
+    name: Bus UI tests
+    if: always() && inputs.run_bus
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stub
+        run: echo "No tests found"
+
+    # Пока тестов нет.
+    #    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@main"
+    #    with:
+    #      branch: ${{ inputs.branch }}
+    #      upload_test_results: ${{ inputs.upload_test_results }}
+    #      is_gradle_cache_debug_enabled: true
+    #      flank_configuration_file: ${{ inputs.bus_config_file }}
+    #      uploaded_app_artifact_name: "bus"
+    #      uploaded_test_artifact_name: "bus"
+    #      assemble_task: "bus_app:assembleGoogleStoreDebug"
+    #      assemble_android_test_task: "bus_app:assembleGoogleStoreDebugAndroidTest"
+    #      output_apk_build_path: "build/outputs/apk/googleStore/debug/bus_app-googleStore-debug.apk"
+    #      output_test_apk_build_path: "build/outputs/apk/androidTest/googleStore/debug/bus_app-googleStore-debug-androidTest.apk"
+    #    secrets:
+    #      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+    #      maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
+    #      firebase_key: ${{ secrets.GCLOUD_SERVCE_ACCOUNT_JSON }}
+    #      telemetry_url: ${{ secrets.TELEMETRY_URL }}
+    #      telemetry_slug: ${{ secrets.TELEMETRY_SLUG }}

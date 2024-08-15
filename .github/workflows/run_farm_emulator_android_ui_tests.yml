@@ -1,0 +1,172 @@
+name: Run Farm Android UI tests
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: "Branch to checkout"
+        type: string
+        required: false
+        default: ""
+      marathon_path:
+        description: "Marathon path to run"
+        type: string
+        required: true
+      screenshot_package:
+        description: "Screenshot package"
+        type: string
+        required: true
+      is_gradle_cache_debug_enabled:
+        description: "Enable or disable Gradle build cache"
+        type: boolean
+        default: true
+        required: false
+      uploaded_artifact_name:
+        type: string
+        required: false
+        default: false
+      upload_test_results:
+        description: "Uploads test results to be able to use them from outer jobs. If specified, uploaded aritfacts will be stored in $uploaded_artifact_name folder"
+        type: boolean
+        required: false
+        default: false
+      assemble_task:
+        type: string
+        default: "assembleDebug"
+        required: false
+        description: "Gradle task to build target app APK"
+      assemble_android_test_task:
+        type: string
+        default: "assembleDebugAndroidTest"
+        required: false
+        description: "Gradle task to build target AndroidTest APK"
+      marathon_clear_package_data:
+        type: boolean
+        required: false
+        default: true
+      marathon_only_record_snapshots:
+        type: boolean
+        required: false
+        default: false
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: false
+      maven_readonly_token:
+        required: true
+      firebase_key:
+        required: true
+      telemetry_url:
+        required: false
+      telemetry_slug:
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.uploaded_artifact_name }}
+  cancel-in-progress: true
+
+env:
+  SCREENSHOTS_PATH: 'screenshots'
+
+jobs:
+  run_ui_tests:
+    runs-on: tutu-mac-builder
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - name: Start measuring job duration
+        id: pipeline_start_date
+        uses: tutu-ru-mobile/github-workflows/action_get_current_date@main
+
+      - name: Get checkout branch
+        run: |
+          if [ ${{ inputs.branch == '' }} ] 
+          then
+            CHECKOUT_BRANCH=${{ github.ref }};
+          else
+            CHECKOUT_BRANCH=${{ inputs.branch }};
+          fi
+          
+          echo "Input branch: ${{ inputs.branch }}"
+          echo "Current branch: ${{ github.ref }}"
+          echo "Result branch: $CHECKOUT_BRANCH"
+          echo "checkout_branch=$CHECKOUT_BRANCH" >> $GITHUB_ENV
+
+      - name: Checkout project
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.checkout_branch }}
+
+      - name: Fix farm screenshots for UI tests
+        run: cp -r ptt/ptt_app/src/androidTest/farm_resources/* ptt/ptt_app/src/androidTest/resources
+
+      - name: Build APKs
+        run: ./gradlew ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
+
+      - name: Start emulators
+        continue-on-error: false
+        run: |
+          set +e -b
+          adb start-server
+          sleep 20
+          emulator @Pixel_2_API_27_1 \
+            -no-audio -no-boot-anim \
+            -wipe-data -no-snapshot-save \
+            -read-only \
+            -change-language ru -change-country RU -change-locale ru-RU \
+          & adb -s emulator-5554 wait-for-device \
+          & adb shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 10; done; input keyevent 82' \
+          2>&1
+
+          sleep 20
+
+      - name: Run tests
+        timeout-minutes: 40
+        run: |
+          cd ${{ inputs.marathon_path }}
+          marathon
+        env:
+          CLEAR_PACKAGE_DATA: ${{ inputs.marathon_clear_package_data }}
+          ONLY_RECORD_SNAPSHOTS: ${{ inputs.marathon_only_record_snapshots }}
+
+      - name: Copy screenshots
+        continue-on-error: true
+        run: |
+          echo "Copying screenshots"
+          mkdir screenshots
+          adb devices | tail -n +2 | cut -sf 1 | \
+            xargs -I {} adb -s {} pull sdcard/Android/data/${{ inputs.screenshot_package }}/files/Screenshots $SCREENSHOTS_PATH \
+            2>&1
+
+      - name: Upload test results
+        continue-on-error: true
+        if: inputs.upload_test_results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.uploaded_artifact_name }}
+          path: ${{ env.SCREENSHOTS_PATH }}
+
+      - name: Stop measuring workflow duration
+        id: seconds_from_date
+        uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
+        with:
+          from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
+
+      - name: Send workflow telemetry
+        uses: tutu-ru-mobile/send-ci-telemetry@main
+        with:
+          url: ${{ secrets.telemetry_url }}
+          slug: ${{ secrets.telemetry_slug }}
+          metrics_name: "test_time_duration"
+          metrics_value: ${{ steps.seconds_from_date.outputs.seconds-from-date }}
+          metrics_labels: |
+            {"os": "android", "app": "${{ inputs.uploaded_app_artifact_name }}", "test_type": "ui"}
+
+      - name: Kill emulators
+        if: always()
+        run: adb devices | grep emulator | cut -f1 | while read line; do adb -s $line emu kill; done
