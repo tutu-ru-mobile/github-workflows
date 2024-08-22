@@ -129,6 +129,7 @@ jobs:
       - if: ${{ inputs.RC-certificate }}
         name: Install certificate on sim 
         run: |
+          xcrun simctl boot "iPhone 11"
           xcrun simctl list devices
           xcrun simctl keychain "iPhone 11" add-root-cert /Users/dev/ca_ios.crt
           xcrun simctl keychain "iPhone 11" settings -s "allow" -k ""
