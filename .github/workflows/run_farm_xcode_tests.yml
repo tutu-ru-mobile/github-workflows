@@ -129,9 +129,10 @@ jobs:
       - if: ${{ inputs.RC-certificate }}
         name: Install certificate on sim 
         run: |
+          openssl x509 -inform der -in /Users/dev/ca_ios.crt -out /Users/dev/ca_ios.pem
           xcrun simctl boot "iPhone 11"
           xcrun simctl list devices
-          xcrun simctl keychain "iPhone 11" add-root-cert /Users/dev/ca_ios.crt
+          xcrun simctl keychain "iPhone 11" add-root-cert /Users/dev/ca_ios.pem
           xcrun simctl keychain "iPhone 11" settings -s "allow" -k ""
       - name: Create ci tag
         run: touch .ci_tag
