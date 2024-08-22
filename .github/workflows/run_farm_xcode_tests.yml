@@ -133,7 +133,6 @@ jobs:
           xcrun simctl boot "iPhone 11"
           xcrun simctl list devices
           xcrun simctl keychain "iPhone 11" add-root-cert /Users/dev/ca_ios.pem
-          xcrun simctl keychain "iPhone 11" settings -s "allow" -k ""
       - name: Create ci tag
         run: touch .ci_tag
       - name: Compile and Test
