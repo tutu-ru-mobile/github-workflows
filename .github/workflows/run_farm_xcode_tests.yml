@@ -69,6 +69,11 @@ on:
         default: 2
         type: number
         required: false
+      RC-certificate:
+        description: 'RC certificate for sim'
+        default: false
+        type: boolean
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -121,6 +126,11 @@ jobs:
         run: |
           make install-xcodegen
           make generate-xcodeproj
+      - if: ${{ inputs.RC-certificate }}
+        name: Install certificate on sim 
+        run: |
+          xcrun simctl keychain "iPhone 11" add-certificates /Users/dev/ca_ios.crt
+          xcrun simctl keychain "iPhone 11" settings -s "allow" -k ""
       - name: Create ci tag
         run: touch .ci_tag
       - name: Compile and Test
