@@ -8,6 +8,11 @@ on:
         type: boolean
         default: true
         required: false
+      gradlew_arguments:
+        description: "Arguments for ./gradlew command"
+        type: string
+        default: "test --no-daemon"
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -36,7 +41,7 @@ jobs:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
 
       - name: Run unit tests
-        run: ./gradlew test --no-daemon
+        run: ./gradlew ${{ inputs.gradlew_arguments }}
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
