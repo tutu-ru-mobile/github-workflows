@@ -27,20 +27,14 @@ jobs:
       run:
         shell: bash -leo pipefail {0}
     steps:
-      - name: Cancel previous runs
-        uses: styfle/cancel-workflow-action@0.12.0
-        with:
-          all_but_latest: true
-          access_token: ${{ secrets.github_access_token }}
-
       - name: Checkout
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v4
+
+      - name: Clean gradle cache
+        run: ./gradlew clean
 
       - name: Run unit tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: test --no-daemon
-          cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
+        run: ./gradlew test --no-daemon
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}

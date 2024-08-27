@@ -97,36 +97,18 @@ jobs:
           echo "checkout_branch=$CHECKOUT_BRANCH" >> $GITHUB_ENV
 
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.checkout_branch }}
+
+      - name: Clean gradle cache
+        run: ./gradlew clean
 
       - name: Build APKs
         run: ./gradlew ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
-
-      # - name: Build APKs
-      #   uses: gradle/gradle-build-action@v2
-      #   with:
-      #     arguments: ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}
-      #     cache-read-only: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/release' && github.ref != 'refs/heads/develop' }}
-      #   env:
-      #     MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
-      #     GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
-
-      # - name: Upload APK
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ${{ inputs.uploaded_app_artifact_name }}
-      #     path: ${{ inputs.output_apk_build_path }}
-
-      # - name: Upload androidTest APK
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ${{ inputs.uploaded_test_artifact_name }}
-      #     path: ${{ inputs.output_test_apk_build_path }}
 
       - name: Run instrumented tests
         id: flank_run
