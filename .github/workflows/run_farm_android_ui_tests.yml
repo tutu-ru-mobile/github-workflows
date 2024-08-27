@@ -103,6 +103,8 @@ jobs:
 
       - name: Clean gradle cache
         run: ./gradlew clean
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
 
       - name: Build APKs
         run: ./gradlew ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}

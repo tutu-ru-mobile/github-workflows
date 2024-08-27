@@ -32,6 +32,8 @@ jobs:
 
       - name: Clean gradle cache
         run: ./gradlew clean
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
 
       - name: Run unit tests
         run: ./gradlew test --no-daemon
