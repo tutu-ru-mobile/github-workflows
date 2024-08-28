@@ -85,7 +85,7 @@ jobs:
           PR_BRANCH: ${{ github.head_ref }}
       
       - name: Comment PR if screenshot tests failed
-        uses: octokit/request-action@v2
+        uses: octokit/request-action@v2.x
         if: always() && steps.failed-screenshots.outputs.PR_COMMENT
         with:
           route: POST /repos/:repo/issues/:issue_number/comments
