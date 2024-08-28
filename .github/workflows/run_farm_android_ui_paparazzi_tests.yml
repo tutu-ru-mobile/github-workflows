@@ -1,0 +1,112 @@
+name: Run Farm Android UI tests
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: "Branch to checkout"
+        type: string
+        required: false
+        default: ""
+      is_gradle_cache_debug_enabled:
+        description: "Enable or disable Gradle build cache"
+        type: boolean
+        default: true
+        required: false
+      gradlew_task:
+        type: string
+        default: "verifyPaparazziDebug"
+        required: false
+        description: "Gradle task to assemble"
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: false
+      maven_readonly_token:
+        required: true
+      telemetry_url:
+        required: false
+      telemetry_slug:
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run_ui_tests:
+    runs-on: tutu-mac-builder
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - name: Start measuring job duration
+        id: pipeline_start_date
+        uses: tutu-ru-mobile/github-workflows/action_get_current_date@main
+
+      - name: Get checkout branch
+        run: |
+          if [ ${{ inputs.branch == '' }} ] 
+          then
+            CHECKOUT_BRANCH=${{ github.ref }};
+          else
+            CHECKOUT_BRANCH=${{ inputs.branch }};
+          fi
+          
+          echo "Input branch: ${{ inputs.branch }}"
+          echo "Current branch: ${{ github.ref }}"
+          echo "Result branch: $CHECKOUT_BRANCH"
+          echo "checkout_branch=$CHECKOUT_BRANCH" >> $GITHUB_ENV
+
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.checkout_branch }}
+
+      - name: Clean gradle cache
+        run: ./gradlew clean
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+
+      - name: Build APKs
+        run: ./gradlew ${{ inputs.gradlew_task }}
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
+
+      - name: Process failed screenshot tests
+        if: failure()
+        id: failed-screenshots
+        run: ./scripts/process_failed_screenshots.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_BRANCH: ${{ github.head_ref }}
+      
+      - name: Comment PR if screenshot tests failed
+        uses: octokit/request-action@v2
+        if: always() && steps.failed-screenshots.outputs.PR_COMMENT
+        with:
+          route: POST /repos/:repo/issues/:issue_number/comments
+          repo: ${{ github.repository }}
+          issue_number: ${{ steps.failed-screenshots.outputs.PR_NUMBER }}
+          body: ${{ steps.failed-screenshots.outputs.PR_COMMENT }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Stop measuring workflow duration
+        id: seconds_from_date
+        uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
+        with:
+          from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
+
+      - name: Send workflow telemetry
+        uses: tutu-ru-mobile/send-ci-telemetry@main
+        with:
+          url: ${{ secrets.telemetry_url }}
+          slug: ${{ secrets.telemetry_slug }}
+          metrics_name: "test_time_duration"
+          metrics_value: ${{ steps.seconds_from_date.outputs.seconds-from-date }}
+          metrics_labels: |
+            {"os": "android", "app": "${{ inputs.uploaded_app_artifact_name }}", "test_type": "ui"}
