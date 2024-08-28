@@ -1,0 +1,48 @@
+name: Run Android gradlew task
+
+on:
+  workflow_call:
+    inputs:
+      is_gradle_cache_debug_enabled:
+        description: "Enable or disable Gradle build cache"
+        type: boolean
+        default: true
+        required: false
+      gradlew_arguments:
+        description: "Arguments for ./gradlew command"
+        type: string
+        default: "test --no-daemon"
+        required: true
+    secrets:
+      github_access_token:
+        required: true
+      ssh_private_key:
+        required: false
+      maven_readonly_token:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+
+jobs:
+  run_gradlew_task:
+    runs-on: tutu-mac-builder
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clean gradle cache
+        run: ./gradlew clean
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+
+      - name: Run gradlew task
+        run: ./gradlew ${{ inputs.gradlew_arguments }}
+        env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
