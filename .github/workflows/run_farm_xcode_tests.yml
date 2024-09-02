@@ -99,9 +99,6 @@ jobs:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'record') }}
     runs-on: tutu-mac-builder
     continue-on-error: true
-    strategy:
-      matrix:
-        destination: ['platform=iOS Simulator,name=iPhone 11']
     steps:
       - name: Shutdown Simulator 
         run: xcrun simctl shutdown all
@@ -133,31 +130,29 @@ jobs:
           xcrun simctl keychain "iPhone 11" add-root-cert /Users/dev/ca_pem.pem
       - name: Create ci tag
         run: touch .ci_tag
+      - name: Clean derived data
+        continue-on-error: true
+        run: |
+          xcodebuild clean \
+            -skipPackagePluginValidation \
+            -workspace ${{ inputs.workspace_name }} \
+            -scheme ${{ inputs.scheme_name }}
+
       - name: Compile and Test
         timeout-minutes: 120
         run: |
-          if [ -n "${{ inputs.is_only_testing }}" ]; then
-            ONLY_TESTING_CMD="-only-testing ${{ inputs.is_only_testing }}"
-          else
-            ONLY_TESTING_CMD=""
-          fi
-
-            xcodebuild clean test \
+          xcodebuild test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
-           ${ONLY_TESTING_CMD} \
-            -destination "${destination}" \
+            -destination "platform=iOS Simulator,name=iPhone 11" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
             -test-iterations '${{ inputs.test-iterations }}' \
             -parallel-testing-enabled ${{ inputs.is_parallel_testing }} \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            ONLY_ACTIVE_ARCH=NO \
-            | bundle exec xcpretty;
-        env:
-          destination: ${{ matrix.destination }}
+            ONLY_ACTIVE_ARCH=NO
       - name: Remove ci tag
         run: rm .ci_tag
       - if: failure()
