@@ -1,4 +1,4 @@
-name: ~REUSABLE Run UI tests
+name: Run UI tests on farm
 
 on:
   workflow_call:

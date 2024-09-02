@@ -99,9 +99,6 @@ jobs:
         with:
           ref: ${{ env.checkout_branch }}
 
-      - name: Fix farm screenshots for UI tests
-        run: cp -r ptt/ptt_app/src/androidTest/farm_resources/* ptt/ptt_app/src/androidTest/resources
-
       - name: Build APKs
         run: ./gradlew ${{ inputs.assemble_task }} ${{ inputs.assemble_android_test_task }}
         env:
@@ -139,6 +136,7 @@ jobs:
         run: |
           echo "Copying screenshots"
           mkdir screenshots
+          # Получает список id подключенных девайсов, и для каждого копирует содержимое папки screenshots в текущую директорию screenshots
           adb devices | tail -n +2 | cut -sf 1 | \
             xargs -I {} adb -s {} pull sdcard/Android/data/${{ inputs.screenshot_package }}/files/Screenshots $SCREENSHOTS_PATH \
             2>&1
@@ -158,6 +156,7 @@ jobs:
           from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
 
       - name: Send workflow telemetry
+        continue-on-error: true
         uses: tutu-ru-mobile/send-ci-telemetry@main
         with:
           url: ${{ secrets.telemetry_url }}
