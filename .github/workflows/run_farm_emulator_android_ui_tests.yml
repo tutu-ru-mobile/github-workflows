@@ -111,7 +111,7 @@ jobs:
           set +e -b
           adb start-server
           sleep 20
-          emulator @Pixel_2_API_27_1 \
+          emulator @Pixel_8_API_32 \
             -no-audio -no-boot-anim \
             -wipe-data -no-snapshot-save \
             -read-only \
@@ -135,10 +135,12 @@ jobs:
         continue-on-error: true
         run: |
           echo "Copying screenshots"
+          # Получаем директорию с сохраненными скриншотами
+          INTERNAL_SCREENSHOTS_PATH=$(adb logcat -d | grep -i "Snapshot saved" | head -n 1 | sed -n 's|.*Snapshot saved to \(/.*\)/.*|\1/|p')
           mkdir screenshots
           # Получает список id подключенных девайсов, и для каждого копирует содержимое папки screenshots в текущую директорию screenshots
           adb devices | tail -n +2 | cut -sf 1 | \
-            xargs -I {} adb -s {} pull sdcard/Android/data/${{ inputs.screenshot_package }}/files/Screenshots $SCREENSHOTS_PATH \
+            xargs -I {} adb -s {} pull $INTERNAL_SCREENSHOTS_PATH $SCREENSHOTS_PATH \
             2>&1
 
       - name: Upload test results
