@@ -74,6 +74,10 @@ on:
         default: false
         type: boolean
         required: false
+      test_plan_name:
+        description: 'testplan name'
+        type: string
+        required: false
     secrets:
       github_access_token:
         required: true
@@ -137,7 +141,6 @@ jobs:
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }}
-
       - name: Compile and Test
         timeout-minutes: 120
         run: |
@@ -152,7 +155,10 @@ jobs:
             -parallel-testing-enabled ${{ inputs.is_parallel_testing }} \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            ONLY_ACTIVE_ARCH=NO
+            ONLY_ACTIVE_ARCH=NO \
+            $(if [ -n "${{ inputs.is_only_testing }}" ]; then echo "-only-testing ${{ inputs.is_only_testing }}"; fi) \
+            $(if [ -n "${{ inputs.test_plan_name }}" ]; then echo "-testPlan ${{ inputs.test_plan_name }}"; fi) \
+          | bundle exec xcpretty
       - name: Remove ci tag
         run: rm .ci_tag
       - if: failure()
