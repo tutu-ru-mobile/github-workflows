@@ -142,6 +142,8 @@ jobs:
 
       - name: Compile and Test
         timeout-minutes: 120
+        env:
+          SKIP_SWIFTGEN: ${{ env.SKIP_SWIFTGEN }}
         run: |
           xcodebuild test \
             -skipPackagePluginValidation \
