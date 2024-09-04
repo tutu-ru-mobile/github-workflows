@@ -141,7 +141,6 @@ jobs:
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }}
-            
       - name: Compile and Test
         timeout-minutes: 120
         run: |
