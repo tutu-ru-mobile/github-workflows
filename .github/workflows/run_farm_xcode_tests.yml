@@ -130,8 +130,6 @@ jobs:
           xcrun simctl keychain "iPhone 11" add-root-cert /Users/dev/ca_pem.pem
       - name: Create ci tag
         run: touch .ci_tag
-      - name: Skip SwiftGen
-        run: echo "SKIP_SWIFTGEN=true" >> $GITHUB_ENV
       - name: Clean derived data
         continue-on-error: true
         run: |
@@ -142,13 +140,17 @@ jobs:
 
       - name: Compile and Test
         timeout-minutes: 120
-        env:
-          SKIP_SWIFTGEN: ${{ env.SKIP_SWIFTGEN }}
         run: |
+          if [ -n "${{ inputs.is_only_testing }}" ]; then
+            ONLY_TESTING_CMD="-only-testing ${{ inputs.is_only_testing }}"
+          else
+            ONLY_TESTING_CMD=""
+          fi
           xcodebuild test \
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
+            ${ONLY_TESTING_CMD} \
             -destination "platform=iOS Simulator,name=iPhone 11" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
