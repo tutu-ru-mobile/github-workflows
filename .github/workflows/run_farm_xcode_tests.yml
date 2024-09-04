@@ -141,9 +141,14 @@ jobs:
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }}
-
+            
+      - name: Skip SwiftGen
+        run: echo "SKIP_SWIFTGEN=true" >> $GITHUB_ENV
+        
       - name: Compile and Test
         timeout-minutes: 120
+        env:
+          SKIP_SWIFTGEN: ${{ env.SKIP_SWIFTGEN }}
         run: |
           xcodebuild test \
             -skipPackagePluginValidation \
