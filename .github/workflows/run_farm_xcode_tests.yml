@@ -134,8 +134,6 @@ jobs:
           xcrun simctl keychain "iPhone 11" add-root-cert /Users/dev/ca_pem.pem
       - name: Create ci tag
         run: touch .ci_tag
-      - name: bundle exec pod install
-        run: bundle exec pod install
       - name: Clean derived data
         continue-on-error: true
         run: |
