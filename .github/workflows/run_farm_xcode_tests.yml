@@ -158,8 +158,8 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO     
-          if [ -n "${{ inputs.only_testing }}" ]; then
-          command+=" -only-testing ${{ inputs.only_testing }}"
+          if [ -n "${{ inputs.is_only_testing }}" ]; then
+          command+=" -only-testing ${{ inputs.is_only_testing }}"
           fi
         
           if [ -n "${{ inputs.test_plan_name }}" ]; then
