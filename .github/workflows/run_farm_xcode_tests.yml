@@ -134,12 +134,10 @@ jobs:
           xcrun simctl keychain "iPhone 11" add-root-cert /Users/dev/ca_pem.pem
       - name: Create ci tag
         run: touch .ci_tag
-      - name: Skip SwiftGen
-        run: echo "SKIP_SWIFTGEN=true" >> $GITHUB_ENV
+      - name: bundle exec pod install
+        run: bundle exec pod install
       - name: Clean derived data
         continue-on-error: true
-        env:
-          SKIP_SWIFTGEN: ${{ env.SKIP_SWIFTGEN }}
         run: |
           xcodebuild clean \
             -skipPackagePluginValidation \
@@ -148,8 +146,6 @@ jobs:
             
       - name: Compile and Test
         timeout-minutes: 120
-        env:
-          SKIP_SWIFTGEN: ${{ env.SKIP_SWIFTGEN }}
         run: |
           xcodebuild test \
             -skipPackagePluginValidation \
