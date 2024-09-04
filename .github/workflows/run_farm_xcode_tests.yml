@@ -156,14 +156,9 @@ jobs:
             -parallel-testing-enabled ${{ inputs.is_parallel_testing }} \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            ONLY_ACTIVE_ARCH=NO 
-          if [ -n "${{ inputs.is_only_testing }}" ]; then
-          command+=" -only-testing ${{ inputs.is_only_testing }}"
-          fi
-        
-          if [ -n "${{ inputs.test_plan_name }}" ]; then
-          command+=" -testPlan ${{ inputs.test_plan_name }}"
-          fi
+            ONLY_ACTIVE_ARCH=NO \
+            $(if [ -n "${{ inputs.is_only_testing }}" ]; then echo "-only-testing ${{ inputs.is_only_testing }}"; fi) \
+            $(if [ -n "${{ inputs.test_plan_name }}" ]; then echo "-testPlan ${{ inputs.test_plan_name }}"; fi) \
           | bundle exec xcpretty
       - name: Remove ci tag
         run: rm .ci_tag
