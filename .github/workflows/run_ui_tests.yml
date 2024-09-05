@@ -32,7 +32,7 @@ jobs:
   ptt_ui_tests:
     name: PTT UI tests
     if: always() && inputs.run_ptt
-    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@main"
+    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@feature/MCORE-640_update_emulator"
     with:
       branch: ${{ inputs.branch }}
       upload_test_results: ${{ inputs.upload_test_results }}

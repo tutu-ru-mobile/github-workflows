@@ -136,7 +136,7 @@ jobs:
         run: |
           echo "Copying screenshots"
           # Получаем директорию с сохраненными скриншотами
-          INTERNAL_SCREENSHOTS_PATH=$(adb logcat -d | grep -i "Snapshot saved" | head -n 1 | sed -n 's|.*Snapshot saved to \(/.*\)/.*|\1/|p')
+          INTERNAL_SCREENSHOTS_PATH=sdcard/Android/data/${{ inputs.screenshot_package }}/files/Screenshots
           mkdir screenshots
           # Получает список id подключенных девайсов, и для каждого копирует содержимое папки screenshots в текущую директорию screenshots
           adb devices | tail -n +2 | cut -sf 1 | \
