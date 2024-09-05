@@ -222,22 +222,6 @@ jobs:
         env:
           PROJECT_ID: ${{ inputs.project_id }}
           
-      - if: ${{ inputs.is_run_allure && always() }}     
-        continue-on-error: true
-      # Шаг для архивации
-        name: Zip Allure results
-        run: zip -r allure-results.zip allure-results
-        
-      - if: ${{ inputs.is_run_allure && always() }}      
-        continue-on-error: true
-      # Шаг для загрузки архива в Github
-        name: Upload to Allure TestOps
-        uses: actions/upload-artifact@v3
-        with:
-          name: allure-results
-          path: allure-results.zip
-          retention-days: 3
-          
       - if: ${{ inputs.is_collect_issues }}
         continue-on-error: true
         name: Collect issues
