@@ -80,6 +80,7 @@ jobs:
         id: failed-screenshots
         run: ./scripts/process_failed_screenshots.sh
         env:
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_BRANCH: ${{ github.head_ref }}
