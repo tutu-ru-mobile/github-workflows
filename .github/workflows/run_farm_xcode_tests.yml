@@ -87,7 +87,11 @@ on:
         required: false
       ALLURE_TOKEN:
         required: false
-
+        
+env:
+  ARTIFACTORY_USERNAME: ${{ secrets.TUTU_ARTIFACTORY_LOGIN }}
+  ARTIFACTORY_TOKEN: ${{ secrets.TUTU_ARTIFACTORY_TOKEN }}
+  
 defaults:
   run:
     shell: bash -leo pipefail {0}
@@ -161,17 +165,19 @@ jobs:
           | bundle exec xcpretty
       - name: Remove ci tag
         run: rm .ci_tag
-      - if: failure()
-        name: Prepare xcresults
-        run: zip -r logs.zip ${{ inputs.xcresult_name }} || echo "Nothing to archive"
+          
       - if: failure()
         continue-on-error: true
-        name: Archive xcresults
-        uses: actions/upload-artifact@v3
+        name: "Send xcresult to artifactory"
+        uses: "tutu-ru-mobile/github-workflows/action_upload_to_artifactory@main"
         with:
-          path: logs.zip
-          name: ${{ inputs.xcresult_name }}
-          retention-days: 3
+          artifactory-url: ${{ vars.TUTU_ARTIFACTORY_URL }}
+          artifactory-user: ${{ secrets.TUTU_ARTIFACTORY_LOGIN }}
+          artifactory-token:  ${{ secrets.TUTU_ARTIFACTORY_TOKEN }}
+          artifactory-project: ${{ vars.TUTU_ARTIFACTORY_PROJECT }}
+          artifactory-slug: "${{ inputs.workspace_name }}"
+          what-to-archive: "${{ inputs.xcresult_name }}"
+          filename-in-artifactory: "${{ inputs.xcresult_name }}.xcresult"     
           
       - if: ${{  inputs.is_run_allure && always() }}   
         continue-on-error: true
