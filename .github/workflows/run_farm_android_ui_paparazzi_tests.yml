@@ -95,6 +95,8 @@ jobs:
           body: ${{ steps.failed-screenshots.outputs.PR_COMMENT }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_BRANCH: ${{ github.head_ref }}
 
       - name: Stop measuring workflow duration
         id: seconds_from_date
