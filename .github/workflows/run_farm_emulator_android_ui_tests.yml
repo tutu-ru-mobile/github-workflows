@@ -132,6 +132,8 @@ jobs:
           cd reports
           cd marathon
           ls 
+          cd device-files
+          ls
           cd Screenshots
           ls
         env:
