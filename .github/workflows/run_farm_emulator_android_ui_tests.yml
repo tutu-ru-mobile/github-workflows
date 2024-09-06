@@ -131,25 +131,13 @@ jobs:
           CLEAR_PACKAGE_DATA: ${{ inputs.marathon_clear_package_data }}
           ONLY_RECORD_SNAPSHOTS: ${{ inputs.marathon_only_record_snapshots }}
 
-      - name: Copy screenshots
-        continue-on-error: true
-        run: |
-          echo "Copying screenshots"
-          # Получаем директорию с сохраненными скриншотами
-          INTERNAL_SCREENSHOTS_PATH=$(adb logcat -d | grep -i "Snapshot saved" | head -n 1 | sed -n 's|.*Snapshot saved to \(/.*\)/.*|\1/|p')
-          mkdir screenshots
-          # Получает список id подключенных девайсов, и для каждого копирует содержимое папки screenshots в текущую директорию screenshots
-          adb devices | tail -n +2 | cut -sf 1 | \
-            xargs -I {} adb -s {} pull $INTERNAL_SCREENSHOTS_PATH $SCREENSHOTS_PATH \
-            2>&1
-
       - name: Upload test results
         continue-on-error: true
         if: inputs.upload_test_results
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.uploaded_artifact_name }}
-          path: ${{ env.SCREENSHOTS_PATH }}
+          path: ${{ inputs.marathon_path }}/build/reports/marathon/device-files/Screenshots
 
       - name: Stop measuring workflow duration
         id: seconds_from_date
