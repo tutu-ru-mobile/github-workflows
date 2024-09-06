@@ -131,7 +131,6 @@ jobs:
           cd build
           cd reports
           cd marathon
-          cd /build/reports/marathon/device-files/
           ls 
           cd Screenshots
           ls
