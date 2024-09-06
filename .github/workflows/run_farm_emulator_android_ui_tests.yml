@@ -127,6 +127,7 @@ jobs:
         run: |
           cd ${{ inputs.marathon_path }}
           marathon
+          ls /build/reports/marathon/device-files/Screenshots
         env:
           CLEAR_PACKAGE_DATA: ${{ inputs.marathon_clear_package_data }}
           ONLY_RECORD_SNAPSHOTS: ${{ inputs.marathon_only_record_snapshots }}
@@ -137,7 +138,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.uploaded_artifact_name }}
-          path: /build/reports/marathon/device-files/Screenshots
+          path: ${{ inputs.marathon_path }}/build/reports/marathon/device-files/Screenshots
 
       - name: Stop measuring workflow duration
         id: seconds_from_date
