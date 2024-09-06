@@ -127,7 +127,7 @@ jobs:
         run: |
           cd ${{ inputs.marathon_path }}
           marathon
-          ls /build/reports/marathon/device-files/Screenshots
+          cd build/reports/marathon/device-files/Screenshots
         env:
           CLEAR_PACKAGE_DATA: ${{ inputs.marathon_clear_package_data }}
           ONLY_RECORD_SNAPSHOTS: ${{ inputs.marathon_only_record_snapshots }}
