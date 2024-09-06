@@ -127,6 +127,10 @@ jobs:
         run: |
           cd ${{ inputs.marathon_path }}
           marathon
+          pwd
+          cd build
+          cd reports
+          cd marathon
           cd /build/reports/marathon/device-files/
           ls 
           cd Screenshots
