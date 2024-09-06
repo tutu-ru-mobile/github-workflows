@@ -19,8 +19,10 @@ on:
       ssh_private_key:
         required: false
       maven_readonly_token:
-        required: true
-
+        required: false
+      maven_token:
+        required: false
+  
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -39,10 +41,11 @@ jobs:
       - name: Clean gradle cache
         run: ./gradlew clean
         env:
-          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_token }}
 
       - name: Run gradlew task
         run: ./gradlew ${{ inputs.gradlew_arguments }}
         env:
-          MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
+          MAVEN_READONLY_TOKEN: ${{ secrets.maven_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
+          GITHUB_TOKEN: ${{ secrets.github_access_token }}
