@@ -137,9 +137,9 @@ jobs:
           set +e -b
           echo "Copying screenshots"
           # Получаем директорию с сохраненными скриншотами
-          INTERNAL_SCREENSHOTS_PATH=$(adb logcat -d | grep -i "Snapshot saved" | head -n 1 | sed -n 's|.*Snapshot saved to \(/.*\)/.*|\1/|p')
+          INTERNAL_SCREENSHOTS_PATH=$(adb logcat -d | grep -i "Snapshot saved")
           echo $INTERNAL_SCREENSHOTS_PATH
-          adb shell ls -l /storage/emulated/0/Android/data/ru.tutu.tutu_emp/files/
+          adb shell ls /storage/emulated/0/Android/data/ru.tutu.tutu_emp/files/
           adb shell ls -l /storage/emulated/0/Android/data/ru.tutu.tutu_emp/files/Screenshots
           adb shell ls -l /sdcard/Android/data/ru.tutu.tutu_emp/files/Screenshots
           mkdir screenshots
