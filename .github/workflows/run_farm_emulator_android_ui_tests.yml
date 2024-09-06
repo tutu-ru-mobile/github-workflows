@@ -134,6 +134,7 @@ jobs:
       - name: Copy screenshots
         continue-on-error: true
         run: |
+          set +e -b
           echo "Copying screenshots"
           # Получаем директорию с сохраненными скриншотами
           INTERNAL_SCREENSHOTS_PATH=$(adb logcat -d | grep -i "Snapshot saved" | head -n 1 | sed -n 's|.*Snapshot saved to \(/.*\)/.*|\1/|p')
