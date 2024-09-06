@@ -127,15 +127,6 @@ jobs:
         run: |
           cd ${{ inputs.marathon_path }}
           marathon
-          pwd
-          cd build
-          cd reports
-          cd marathon
-          ls 
-          cd device-files
-          ls
-          cd Screenshots
-          ls
         env:
           CLEAR_PACKAGE_DATA: ${{ inputs.marathon_clear_package_data }}
           ONLY_RECORD_SNAPSHOTS: ${{ inputs.marathon_only_record_snapshots }}
