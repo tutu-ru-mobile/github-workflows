@@ -42,7 +42,7 @@ jobs:
       uploaded_artifact_name: "ptt"
       assemble_task: ":ptt:ptt_app:assembleGoogleStoreDebug"
       assemble_android_test_task: ":ptt:ptt_app:assembleGoogleStoreDebugAndroidTest"
-      marathon_clear_package_data: false
+      marathon_clear_package_data: true
       marathon_only_record_snapshots: true
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -64,7 +64,7 @@ jobs:
       uploaded_artifact_name: "avia"
       assemble_task: "avia_app:assembleGoogleStoreDebug"
       assemble_android_test_task: "avia_app:assembleGoogleStoreDebugAndroidTest"
-      marathon_clear_package_data: false
+      marathon_clear_package_data: true
       marathon_only_record_snapshots: true
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -86,7 +86,7 @@ jobs:
       uploaded_artifact_name: "train"
       assemble_task: "train_app:assembleGoogleStoreDebug"
       assemble_android_test_task: "train_app:assembleGoogleStoreDebugAndroidTest"
-      marathon_clear_package_data: false
+      marathon_clear_package_data: true
       marathon_only_record_snapshots: true
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
