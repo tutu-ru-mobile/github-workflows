@@ -27,6 +27,10 @@ on:
         required: false
         type: boolean
         default: false
+      record_snapshots:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   ptt_ui_tests:
@@ -38,18 +42,23 @@ jobs:
       upload_test_results: ${{ inputs.upload_test_results }}
       is_gradle_cache_debug_enabled: true
       marathon_path: "ptt/ptt_app"
-      screenshot_package: "ru.tutu.tutu_emp"
       uploaded_artifact_name: "ptt"
       assemble_task: ":ptt:ptt_app:assembleGoogleStoreDebug"
       assemble_android_test_task: ":ptt:ptt_app:assembleGoogleStoreDebugAndroidTest"
       marathon_clear_package_data: true
-      marathon_only_record_snapshots: true
+      marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
+      allure_project_id: "54"
+      send_alert_to_tg: true
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
       firebase_key: ${{ secrets.GCLOUD_SERVCE_ACCOUNT_JSON }}
       telemetry_url: ${{ secrets.TELEMETRY_URL }}
       telemetry_slug: ${{ secrets.TELEMETRY_SLUG }}
+      allure_token: ${{ secrets.ALLURE_TOKEN }}
+      tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
+      tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_PTT_THREAD_ID }}
+      tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
 
   avia_ui_tests:
     name: Avia UI tests
@@ -60,18 +69,23 @@ jobs:
       upload_test_results: ${{ inputs.upload_test_results }}
       is_gradle_cache_debug_enabled: true
       marathon_path: "avia_app"
-      screenshot_package: "ru.tutu.avia"
       uploaded_artifact_name: "avia"
       assemble_task: "avia_app:assembleGoogleStoreDebug"
       assemble_android_test_task: "avia_app:assembleGoogleStoreDebugAndroidTest"
       marathon_clear_package_data: true
-      marathon_only_record_snapshots: true
+      marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
+      allure_project_id: "16"
+      send_alert_to_tg: true
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
       firebase_key: ${{ secrets.GCLOUD_SERVCE_ACCOUNT_JSON }}
       telemetry_url: ${{ secrets.TELEMETRY_URL }}
       telemetry_slug: ${{ secrets.TELEMETRY_SLUG }}
+      allure_token: ${{ secrets.ALLURE_TOKEN }}
+      tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
+      tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_MONOAVIA_THREAD_ID }}
+      tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
 
   train_ui_tests:
     name: Train UI tests
@@ -82,18 +96,23 @@ jobs:
       upload_test_results: ${{ inputs.upload_test_results }}
       is_gradle_cache_debug_enabled: true
       marathon_path: "train_app"
-      screenshot_package: "ru.tutu.trainapp"
       uploaded_artifact_name: "train"
       assemble_task: "train_app:assembleGoogleStoreDebug"
       assemble_android_test_task: "train_app:assembleGoogleStoreDebugAndroidTest"
       marathon_clear_package_data: true
-      marathon_only_record_snapshots: true
+      marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
+      allure_project_id: "98"
+      send_alert_to_tg: true
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
       firebase_key: ${{ secrets.GCLOUD_SERVCE_ACCOUNT_JSON }}
       telemetry_url: ${{ secrets.TELEMETRY_URL }}
       telemetry_slug: ${{ secrets.TELEMETRY_SLUG }}
+      allure_token: ${{ secrets.ALLURE_TOKEN }}
+      tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
+      tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_MONOTRAIN_THREAD_ID }}
+      tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
 
   bus_ui_tests:
     name: Bus UI tests
@@ -108,8 +127,6 @@ jobs:
     #    with:
     #      branch: ${{ inputs.branch }}
     #      upload_test_results: ${{ inputs.upload_test_results }}
-    #      is_gradle_cache_debug_enabled: true
-    #      flank_configuration_file: ${{ inputs.bus_config_file }}
     #      uploaded_app_artifact_name: "bus"
     #      uploaded_test_artifact_name: "bus"
     #      assemble_task: "bus_app:assembleGoogleStoreDebug"
