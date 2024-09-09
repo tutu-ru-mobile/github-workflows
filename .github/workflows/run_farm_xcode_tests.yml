@@ -172,8 +172,8 @@ jobs:
         uses: "tutu-ru-mobile/github-workflows/action_upload_to_artifactory@main"
         with:
           artifactory-url: ${{ vars.TUTU_ARTIFACTORY_URL }}
-          artifactory-user: ${{ secrets.TUTU_ARTIFACTORY_LOGIN }}
-          artifactory-token:  ${{ secrets.TUTU_ARTIFACTORY_TOKEN }}
+          artifactory-user: ${{ env.ARTIFACTORY_USERNAME }}
+          artifactory-token:  ${{ env.ARTIFACTORY_TOKEN }}
           artifactory-project: ${{ vars.TUTU_ARTIFACTORY_PROJECT }}
           artifactory-slug: "${{ inputs.workspace_name }}"
           what-to-archive: "${{ inputs.xcresult_name }}"
