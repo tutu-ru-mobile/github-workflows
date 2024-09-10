@@ -127,15 +127,22 @@ jobs:
     #    with:
     #      branch: ${{ inputs.branch }}
     #      upload_test_results: ${{ inputs.upload_test_results }}
-    #      uploaded_app_artifact_name: "bus"
-    #      uploaded_test_artifact_name: "bus"
+    #      is_gradle_cache_debug_enabled: true
+    #      marathon_path: "bus_app"
+    #      uploaded_artifact_name: "bus"
     #      assemble_task: "bus_app:assembleGoogleStoreDebug"
     #      assemble_android_test_task: "bus_app:assembleGoogleStoreDebugAndroidTest"
-    #      output_apk_build_path: "build/outputs/apk/googleStore/debug/bus_app-googleStore-debug.apk"
-    #      output_test_apk_build_path: "build/outputs/apk/androidTest/googleStore/debug/bus_app-googleStore-debug-androidTest.apk"
+    #      marathon_clear_package_data: true
+    #      marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
+    #      allure_project_id: "97"
+    #      send_alert_to_tg: true
     #    secrets:
     #      github_access_token: ${{ secrets.GITHUB_TOKEN }}
     #      maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
     #      firebase_key: ${{ secrets.GCLOUD_SERVCE_ACCOUNT_JSON }}
     #      telemetry_url: ${{ secrets.TELEMETRY_URL }}
     #      telemetry_slug: ${{ secrets.TELEMETRY_SLUG }}
+    #      allure_token: ${{ secrets.ALLURE_TOKEN }}
+    #      tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
+    #      tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_MONOBUS_THREAD_ID }}
+    #      tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
