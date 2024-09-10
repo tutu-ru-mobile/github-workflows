@@ -18,7 +18,7 @@ on:
         required: true
       ssh_private_key:
         required: false
-      maven_readonly_token:
+      maven_readonly_token: #перевезти все репо на maven_token, а этот удалить
         required: false
       maven_token:
         required: false
@@ -42,6 +42,7 @@ jobs:
         run: ./gradlew clean
         env:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_token }}
+          GITHUB_TOKEN: ${{ secrets.github_access_token }}
 
       - name: Run gradlew task
         run: ./gradlew ${{ inputs.gradlew_arguments }}
