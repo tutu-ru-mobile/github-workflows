@@ -12,10 +12,6 @@ on:
         description: "Marathon path to run"
         type: string
         required: true
-      screenshot_package:
-        description: "Screenshot package"
-        type: string
-        required: true
       is_gradle_cache_debug_enabled:
         description: "Enable or disable Gradle build cache"
         type: boolean
@@ -48,6 +44,13 @@ on:
         type: boolean
         required: false
         default: false
+      allure_project_id:
+        type: string
+        required: false
+      send_alert_to_tg:
+        type: boolean
+        required: false
+        default: false
     secrets:
       github_access_token:
         required: true
@@ -61,17 +64,27 @@ on:
         required: false
       telemetry_slug:
         required: false
+      allure_token:
+        required: false
+      tg_chat_id:
+        required: false
+      tg_thread_id:
+        required: false
+      tg_release_token_id:
+        required: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.uploaded_artifact_name }}
   cancel-in-progress: true
 
-env:
-  SCREENSHOTS_PATH: 'screenshots'
-
 jobs:
   run_ui_tests:
     runs-on: tutu-mac-builder
+    outputs:
+      test_status: ${{ steps.allure_send_report.outputs.test_status }}
+      hours: ${{ steps.runtime.outputs.hours }}
+      minutes: ${{ steps.runtime.outputs.minutes }}
+      launch_id: ${{ steps.allure_send_report.outputs.launch_id }}
     defaults:
       run:
         shell: bash -leo pipefail {0}
@@ -95,7 +108,7 @@ jobs:
           echo "checkout_branch=$CHECKOUT_BRANCH" >> $GITHUB_ENV
 
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.checkout_branch }}
 
@@ -132,18 +145,84 @@ jobs:
           ONLY_RECORD_SNAPSHOTS: ${{ inputs.marathon_only_record_snapshots }}
 
       - name: Upload test results
-        continue-on-error: true
-        if: inputs.upload_test_results
-        uses: actions/upload-artifact@v3
+        if: success() && inputs.upload_test_results
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.uploaded_artifact_name }}
           path: ${{ inputs.marathon_path }}/build/reports/marathon/device-files/Screenshots
 
+      - name: Send allure report
+        id: allure_send_report
+        if: (!inputs.marathon_only_record_snapshots) && always()
+        run: |
+          ALLURE_ARTIFACTS_PATH="send_to_allure"
+          rm -rf $ALLURE_ARTIFACTS_PATH
+          mkdir $ALLURE_ARTIFACTS_PATH
+          
+          adb devices
+          adb pull sdcard/googletest/test_outputfiles/allure-results $ALLURE_ARTIFACTS_PATH
+          ls $ALLURE_ARTIFACTS_PATH
+          
+          RESULT=$(allurectl launch create --output json ${ALLURE_ARTIFACTS_PATH} \
+          --token ${{ secrets.allure_token }} \
+          --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
+          --project-id ${{ inputs.allure_project_id }} \
+          --launch-name "Прогон Android автотестов на CI")
+          
+          LAUNCH_ID=$(echo "$RESULT" | jq -r '.[0].id')
+          echo "launch_id=$LAUNCH_ID" >> $GITHUB_OUTPUT
+          
+          allurectl upload ${ALLURE_ARTIFACTS_PATH} \
+          --launch-id $LAUNCH_ID \
+          --token ${{ secrets.allure_token }} \
+          --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
+          --project-id ${{ inputs.allure_project_id }}
+          
+          echo "Allure launch is here ${{ vars.ALLURE_ENDPOINT }}/launch/$LAUNCH_ID" >> $GITHUB_STEP_SUMMARY
+          
+          LAUNCH_INFO=$(allurectl launch get $LAUNCH_ID \
+          --token ${{ secrets.allure_token }} \
+          --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
+          --output json)
+          
+          # Проверим количество сфейленных и успешных тестов
+          COUNT_PASSED_TESTS=$(echo $LAUNCH_INFO \
+          | jq '.[0].statistic[] | select(.status=="passed").count')
+          
+          COUNT_FAILED_TESTS=$(echo $LAUNCH_INFO \
+          | jq '.[0].statistic[] | select(.status=="failed").count')
+          
+          COUNT_BROKEN_TESTS=$(echo $LAUNCH_INFO \
+          | jq '.[0].statistic[] | select(.status=="broken").count')
+          
+          # Проверим количество сфейленных и успешных тестов
+          echo "Passed tests count $COUNT_PASSED_TESTS" >> $GITHUB_STEP_SUMMARY
+          echo "Failed tests count $COUNT_FAILED_TESTS" >> $GITHUB_STEP_SUMMARY
+          echo "Broken tests count $COUNT_BROKEN_TESTS" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ -n $COUNT_FAILED_TESTS ]] && [[ $COUNT_FAILED_TESTS > 0 ]]
+          then
+          echo "Some tests was failed"
+          echo "test_status=failed" >> $GITHUB_OUTPUT
+          else
+          echo "All tests succedeed"
+          echo "test_status=success" >> $GITHUB_OUTPUT
+          fi
+
       - name: Stop measuring workflow duration
+        if: always()
         id: seconds_from_date
         uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
         with:
           from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
+
+      - if: always()
+        continue-on-error: true
+        name: Calculate execution time
+        id: runtime
+        run: |
+          echo "hours=${{ steps.seconds_from_date.outputs.hours-from-date }}" >> $GITHUB_OUTPUT
+          echo "minutes=${{ steps.seconds_from_date.outputs.minutes-from-date }}" >> $GITHUB_OUTPUT
 
       - name: Send workflow telemetry
         continue-on-error: true
@@ -159,3 +238,52 @@ jobs:
       - name: Kill emulators
         if: always()
         run: adb devices | grep emulator | cut -f1 | while read line; do adb -s $line emu kill; done
+
+  send_tg_notification:
+    needs: run_ui_tests
+    if: ${{ inputs.send_alert_to_tg && always() }}
+    runs-on: tutu-mac-builder
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get the commit link and author info
+        if: always()
+        id: get_info
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c 1-7)
+          echo "COMMIT_URL=https://github.com/${{ github.repository }}/commit/${{ github.sha }}" >> $GITHUB_ENV
+          echo "SHA=$SHORT_SHA" >> $GITHUB_ENV
+          echo "AUTHOR_NAME=$(git log -1 --format='%an')" >> $GITHUB_ENV
+
+      - name: Get data from API
+        id: get_data
+        run: |
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs \
+            > job.json
+
+      - name: Get job id
+        id: get_id
+        run: |
+          JOB_ID=$(jq '.jobs[0].id' job.json)
+          echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
+
+      - name: Send message
+        uses: tutu-ru-mobile/send-telegram-message@main
+        with:
+          message_thread_id: ${{ secrets.tg_thread_id }}
+          chat_id: ${{ secrets.tg_chat_id }}
+          bot_token: ${{ secrets.tg_release_token_id }}
+          text: |
+            ${{ needs.run_ui_tests.outputs.test_status == 'success' && '✅ BaseTestPlan UI тесты успешно прошли' || '❌ Прогон BaseTestPlan UI тестов упал' }}
+            🕐️ Время выполнения: ${{ needs.run_ui_tests.outputs.hours }}ч ${{ needs.run_ui_tests.outputs.minutes }}м
+            🔧 Последний коммит: <a href="${{ env.COMMIT_URL }}">${{ env.SHA }}</a>
+            🌳 Ветка: ${{ github.ref_name }}
+            🧚‍ Автор: ${{ env.AUTHOR_NAME }}
+          button1_title: "Logs"
+          button1_url: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}/job/${{ steps.get_id.outputs.job_id }}
+          button2_title: ${{ needs.run_ui_tests.outputs.test_status == 'success' && '✅ Allure' || '❌ Allure' }}
+          button2_url: https://allure.tutu.ru/launch/${{ needs.run_ui_tests.outputs.launch_id }}
