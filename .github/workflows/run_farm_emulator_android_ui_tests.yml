@@ -200,23 +200,24 @@ jobs:
           echo "Failed tests count $COUNT_FAILED_TESTS" >> $GITHUB_STEP_SUMMARY
           echo "Broken tests count $COUNT_BROKEN_TESTS" >> $GITHUB_STEP_SUMMARY
           
-          if [[ -n $COUNT_FAILED_TESTS ]] && [[ $COUNT_FAILED_TESTS > 0 ]]
+          if { [[ -n $COUNT_FAILED_TESTS ]] && [[ $COUNT_FAILED_TESTS > 0 ]]; } || 
+          { [[ -n $COUNT_BROKEN_TESTS ]] && [[ $COUNT_BROKEN_TESTS > 0 ]]; };
           then
           echo "Some tests was failed"
           echo "test_status=failed" >> $GITHUB_OUTPUT
           else
-          echo "All tests succedeed"
+          echo "All tests succeeded"
           echo "test_status=success" >> $GITHUB_OUTPUT
           fi
 
       - name: Stop measuring workflow duration
-        if: always()
+        if: ${{ !cancelled() }}
         id: seconds_from_date
         uses: tutu-ru-mobile/github-workflows/action_get_seconds_from_date@main
         with:
           from-date: ${{ steps.pipeline_start_date.outputs.seconds-from-epoch }}
 
-      - if: always()
+      - if: ${{ !cancelled() }}
         continue-on-error: true
         name: Calculate execution time
         id: runtime
@@ -240,8 +241,8 @@ jobs:
         run: adb devices | grep emulator | cut -f1 | while read line; do adb -s $line emu kill; done
 
   send_tg_notification:
+    if: ${{ inputs.send_alert_to_tg && !cancelled() }}
     needs: run_ui_tests
-    if: ${{ inputs.send_alert_to_tg && always() }}
     runs-on: tutu-mac-builder
     steps:
       - name: Checkout
