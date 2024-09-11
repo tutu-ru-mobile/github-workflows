@@ -160,7 +160,7 @@ jobs:
           mkdir $ALLURE_ARTIFACTS_PATH
           
           adb devices
-          adb pull sdcard/googletest/test_outputfiles/allure-results $ALLURE_ARTIFACTS_PATH
+          adb shell "find /sdcard/googletest/test_outputfiles/allure-results \( -name '*.txt' -o -name '*.png' -o -name '*.json' \) -type f -print0" | xargs -0 -I {} adb pull {} $ALLURE_ARTIFACTS_PATH
           ls $ALLURE_ARTIFACTS_PATH
           
           RESULT=$(allurectl launch create --output json ${ALLURE_ARTIFACTS_PATH} \
