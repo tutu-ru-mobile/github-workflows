@@ -31,6 +31,10 @@ on:
         required: false
         type: boolean
         default: false
+      send_alert_to_tg:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   ptt_ui_tests:
@@ -48,7 +52,7 @@ jobs:
       marathon_clear_package_data: true
       marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
       allure_project_id: "54"
-      send_alert_to_tg: true
+      send_alert_to_tg: ${{ inputs.send_alert_to_tg }}
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
@@ -75,7 +79,7 @@ jobs:
       marathon_clear_package_data: true
       marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
       allure_project_id: "16"
-      send_alert_to_tg: true
+      send_alert_to_tg: ${{ inputs.send_alert_to_tg }}
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
@@ -102,7 +106,7 @@ jobs:
       marathon_clear_package_data: true
       marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
       allure_project_id: "98"
-      send_alert_to_tg: true
+      send_alert_to_tg: ${{ inputs.send_alert_to_tg }}
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
@@ -135,7 +139,7 @@ jobs:
     #      marathon_clear_package_data: true
     #      marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
     #      allure_project_id: "97"
-    #      send_alert_to_tg: true
+    #      send_alert_to_tg: ${{ inputs.send_alert_to_tg }}
     #    secrets:
     #      github_access_token: ${{ secrets.GITHUB_TOKEN }}
     #      maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
