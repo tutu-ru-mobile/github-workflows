@@ -285,6 +285,6 @@ jobs:
             🌳 Ветка: ${{ github.ref_name }}
             🧚‍ Автор: ${{ env.AUTHOR_NAME }}
           button1_title: "Logs"
-          button1_url: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}/job/${{ steps.get_id.outputs.job_id }}
+          button1_url: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
           button2_title: ${{ needs.run_ui_tests.outputs.test_status == 'success' && '✅ Allure' || '❌ Allure' }}
           button2_url: https://allure.tutu.ru/launch/${{ needs.run_ui_tests.outputs.launch_id }}
