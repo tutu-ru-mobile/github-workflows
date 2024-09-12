@@ -23,16 +23,11 @@ concurrency:
 
 jobs:
   check_pr:
-    runs-on: [tutu-mac-builder]
+    runs-on: tutu-mac-builder
     if: github.event_name  == 'pull_request'
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Setup SSH
-        uses: tutu-ru-mobile/gh-actions-setup-ssh@v1
-        with:
-          ssh-private-key: ${{ secrets.ssh_private_key }}
 
       - name: Sync Dangerfile
         run: |
