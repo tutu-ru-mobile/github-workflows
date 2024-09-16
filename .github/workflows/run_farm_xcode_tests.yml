@@ -155,7 +155,7 @@ jobs:
             -skipPackagePluginValidation \
             -workspace ${{ inputs.workspace_name }} \
             -scheme ${{ inputs.scheme_name }} \
-            -destination "${{destination}}"" \
+            -destination "${{matrix.destination}}" \
             -resultBundlePath '${{ inputs.xcresult_name }}' \
             -retry-tests-on-failure \
             -test-iterations '${{ inputs.test-iterations }}' \
@@ -166,8 +166,6 @@ jobs:
             $(if [ -n "${{ inputs.is_only_testing }}" ]; then echo "-only-testing ${{ inputs.is_only_testing }}"; fi) \
             $(if [ -n "${{ inputs.test_plan_name }}" ]; then echo "-testPlan ${{ inputs.test_plan_name }}"; fi) \
           | bundle exec xcpretty
-        env:
-          destination: ${{ matrix.destination }}
 
       - name: Remove ci tag
         run: rm .ci_tag
