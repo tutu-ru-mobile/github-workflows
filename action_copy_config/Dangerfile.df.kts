@@ -3,11 +3,48 @@
 import systems.danger.kotlin.*
 import systems.danger.kotlin.models.github.*
 import xyz.pavelkorolev.danger.detekt.DetektPlugin
+import systems.danger.kotlin.sdk.DangerContext
+import xyz.pavelkorolev.danger.detekt.DetektViolationReporter
+import xyz.pavelkorolev.danger.detekt.model.DetektViolation
+import xyz.pavelkorolev.danger.detekt.model.DetektViolationSeverity
 import java.io.File
 
 register.plugin(DetektPlugin)
 
 danger(args) {
+
+    class FailReporter(private val context: DangerContext, private val diffFiles: List<String>) : DetektViolationReporter {
+
+        private val pathPrefix = File("").absolutePath
+
+        override fun report(violation: DetektViolation) {
+            if (violation.filePath in diffFiles) {
+                val message = createMessage(violation)
+                val file = violation.filePath?.let(::File)
+                val filePath = file?.let(::createFilePath)
+                val line = violation.location?.startLine
+                if (filePath != null && line != null) {
+                    context.warn(message, filePath, line)
+                }
+            }
+        }
+
+        private fun createFilePath(file: File): String? {
+            if (file.absolutePath == pathPrefix) return null
+            return file.absolutePath.removePrefix(pathPrefix + File.separator)
+        }
+
+        private fun createMessage(violation: DetektViolation): String {
+            val message = violation.message?.let { "**Detekt**: $it" }
+            val rule = violation.ruleId?.let { "**Rule**: $it" }
+            return listOfNotNull(
+                "",
+                message,
+                rule,
+            ).joinToString(separator = "\n")
+        }
+    }
+
     onGitHub {
         fun checkPRContents() {
             val taskRegex = Regex("([A-Z].*?)\\d+")
@@ -20,7 +57,7 @@ danger(args) {
             }
             if (!pullRequest.title.contains("NO-ISSUE") && pullRequest.body?.contains("https://hq.tutu.ru/") == false) {
                 val title = taskRegex.find(pullRequest.title)?.value
-                warn(title?.let { "Задача в Jira – https://hq.tutu.ru/browse/$title" } ?: "Отсутствует ссылка на задачу в Jira")
+                warn(title?.let { "Задача в Jira – [https://hq.tutu.ru/browse/$title](https://hq.tutu.ru/browse/$title)" } ?: "Отсутствует ссылка на задачу в Jira")
             }
         }
 
@@ -66,12 +103,8 @@ danger(args) {
                 warn("Не найден отчет detekt")
             } else {
                 with(DetektPlugin) {
-                    val report = parse(file)
-                    val count = report.count
-                    if (count > 0) {
-                        warn("Количество ошибок detekt: **$count**.")
-                        report(report)
-                    }
+                    val diffFilesList = git.modifiedFiles + git.createdFiles
+                    report(parse(file), reporter = FailReporter(context, diffFilesList))
                 }
             }
         }
