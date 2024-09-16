@@ -136,7 +136,7 @@ jobs:
           sleep 20
 
       - name: Run tests
-        timeout-minutes: 15
+        timeout-minutes: 45
         run: |
           cd ${{ inputs.marathon_path }}
           marathon
