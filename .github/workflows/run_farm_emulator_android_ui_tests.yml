@@ -9,7 +9,7 @@ on:
         required: false
         default: ""
       marathon_path:
-        description: "Marathon path to run"
+        description: "Marathon path to run e.g. ptt/ptt_app"
         type: string
         required: true
       is_gradle_cache_debug_enabled:
@@ -136,7 +136,7 @@ jobs:
           sleep 20
 
       - name: Run tests
-        timeout-minutes: 40
+        timeout-minutes: 15
         run: |
           cd ${{ inputs.marathon_path }}
           marathon
@@ -241,7 +241,7 @@ jobs:
         run: adb devices | grep emulator | cut -f1 | while read line; do adb -s $line emu kill; done
 
   send_tg_notification:
-    if: ${{ inputs.send_alert_to_tg && !cancelled() }}
+    if: ${{ inputs.send_alert_to_tg && needs.run_ui_tests.outputs.launch_id != '' && !cancelled() }}
     needs: run_ui_tests
     runs-on: tutu-mac-builder
     steps:
@@ -258,6 +258,11 @@ jobs:
           echo "COMMIT_URL=https://github.com/${{ github.repository }}/commit/${{ github.sha }}" >> $GITHUB_ENV
           echo "SHA=$SHORT_SHA" >> $GITHUB_ENV
           echo "AUTHOR_NAME=$(git log -1 --format='%an')" >> $GITHUB_ENV
+          if [ -n "${{ github.event.issue.pull_request.url }}" ]; then
+          echo "BRANCH_URL=${{ github.event.issue.pull_request.url }}" >> $GITHUB_ENV
+          else
+          echo "BRANCH_URL=https://github.com/${{ github.repository }}/tree/${{ github.ref }}" >> $GITHUB_ENV
+          fi
 
       - name: Get data from API
         id: get_data
@@ -282,7 +287,7 @@ jobs:
             ${{ needs.run_ui_tests.outputs.test_status == 'success' && '✅ BaseTestPlan UI тесты успешно прошли' || '❌ Прогон BaseTestPlan UI тестов упал' }}
             🕐️ Время выполнения: ${{ needs.run_ui_tests.outputs.hours }}ч ${{ needs.run_ui_tests.outputs.minutes }}м
             🔧 Последний коммит: <a href="${{ env.COMMIT_URL }}">${{ env.SHA }}</a>
-            🌳 Ветка: ${{ github.ref_name }}
+            🌳 Ветка: <a href="${{ env.BRANCH_URL }}">${{ github.ref_name }}</a>
             🧚‍ Автор: ${{ env.AUTHOR_NAME }}
           button1_title: "Logs"
           button1_url: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
