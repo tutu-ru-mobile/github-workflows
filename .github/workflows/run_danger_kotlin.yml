@@ -43,4 +43,4 @@ jobs:
       - name: Danger
         run: danger-kotlin ci --failOnErrors --dangerfile Dangerfile.df.kts
         env:
-          DANGER_GITHUB_API_TOKEN: ${{ secrets.github_access_token }}
+          GITHUB_TOKEN: ${{ secrets.github_access_token }}
