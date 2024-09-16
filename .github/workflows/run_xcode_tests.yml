@@ -56,8 +56,7 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        destination: ['platform=iOS Simulator,name=iPhone 11']
-        swift: ["5.5"]
+        destination: ['platform=iOS Simulator,name=iPhone 11,OS=17.2']
     steps:
       - name: Start time
         id: starttime
