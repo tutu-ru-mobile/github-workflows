@@ -57,8 +57,7 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        destination: ['platform=iOS Simulator,name=iPhone 11']
-        swift: ["5.5"]
+        destination: ['platform=iOS Simulator,name=iPhone 11,OS=17.2']
     steps:
       - name: System info
         run: |
