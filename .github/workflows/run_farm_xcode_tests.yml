@@ -225,7 +225,7 @@ jobs:
       - if: ${{ inputs.is_collect_issues }}
         continue-on-error: true
         name: Collect issues
-        uses: MeilCli/danger-action@v5
+        uses: MeilCli/danger-action@v6
         with:
           plugins_file: 'Gemfile'
           install_path: 'vendor/bundle'
