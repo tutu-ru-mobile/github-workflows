@@ -258,8 +258,8 @@ jobs:
           echo "COMMIT_URL=https://github.com/${{ github.repository }}/commit/${{ github.sha }}" >> $GITHUB_ENV
           echo "SHA=$SHORT_SHA" >> $GITHUB_ENV
           echo "AUTHOR_NAME=$(git log -1 --format='%an')" >> $GITHUB_ENV
-          if [ -n "${{ github.event.issue.pull_request.url }}" ]; then
-          echo "BRANCH_URL=${{ github.event.issue.pull_request.url }}" >> $GITHUB_ENV
+          if [ -n "${{ github.event.number }}" ]; then
+          echo "BRANCH_URL=https://github.com/${{ github.repository }}/pull/${{ github.event.number }}" >> $GITHUB_ENV
           else
           echo "BRANCH_URL=https://github.com/${{ github.repository }}/tree/${{ github.ref }}" >> $GITHUB_ENV
           fi

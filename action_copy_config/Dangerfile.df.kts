@@ -10,6 +10,7 @@ register.plugin(DetektPlugin)
 danger(args) {
     onGitHub {
         fun checkPRContents() {
+            val taskRegex = Regex("([A-Z].*?)\\d+")
             val insertions = pullRequest.additions ?: 0
             if (insertions > 750) {
                 warn("Размер PR ($insertions строк) превышает рекомендуемый размер (750 строк)")
@@ -18,14 +19,15 @@ danger(args) {
                 warn("Отсутствует описание PR")
             }
             if (!pullRequest.title.contains("NO-ISSUE") && pullRequest.body?.contains("https://hq.tutu.ru/") == false) {
-                warn("Отсутствует ссылка на задачу в Jira")
+                val title = taskRegex.find(pullRequest.title)?.value
+                warn(title?.let { "Задача в Jira – https://hq.tutu.ru/browse/$title" } ?: "Отсутствует ссылка на задачу в Jira")
             }
         }
 
         fun checkBranch() {
             val releaseRegex = Regex("^release/([a-zA-Z]+_)?v[0-9.]+$")
             val releasePRRegex = Regex("\\d\\.\\d\\.\\d")
-            val testOrFeatureRegex = Regex("^(feature|tests)/([A-Z]+-[0-9]+|NO-ISSUE)_[a-zA-Z_]+\$")
+            val testOrFeatureRegex = Regex("^(feature|tests|fix)/([A-Z]+-[0-9]+|NO-ISSUE)_[a-zA-Z_]+\$")
             val testOrFeaturePRRegex = Regex("^([A-Z]+-[0-9]+|NO-ISSUE):")
             val russianLettersRegex = Regex("[а-яА-ЯёЁ]+")
 
@@ -47,7 +49,8 @@ danger(args) {
                 }
                 else ->
                     warn(
-                        "1) Название ветки должно начинаться с **feature/**, **tests/** или **release/**\n" +
+                        "Название ветки не соответствует паттерну!\n" +
+                                "1) Название ветки должно начинаться с **feature/**, **tests/**, **fix/** или **release/**\n" +
                                 "2) Далее идет id задачи из jira в верхнем регистре\n" +
                                 "3) Через нижнее подчеркивание идет краткое название задачи\n" +
                                 "Например, **feature/MAPP-1111_do_something_good** или **feature/NO-ISSUE_do_something_good**\n" +
