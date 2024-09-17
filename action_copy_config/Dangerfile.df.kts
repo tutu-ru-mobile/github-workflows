@@ -27,7 +27,7 @@ danger(args) {
         fun checkBranch() {
             val releaseRegex = Regex("^release/([a-zA-Z]+_)?v[0-9.]+$")
             val releasePRRegex = Regex("\\d\\.\\d\\.\\d")
-            val testOrFeatureRegex = Regex("^(feature|tests)/([A-Z]+-[0-9]+|NO-ISSUE)_[a-zA-Z_]+\$")
+            val testOrFeatureRegex = Regex("^(feature|tests|fix)/([A-Z]+-[0-9]+|NO-ISSUE)_[a-zA-Z_]+\$")
             val testOrFeaturePRRegex = Regex("^([A-Z]+-[0-9]+|NO-ISSUE):")
             val russianLettersRegex = Regex("[а-яА-ЯёЁ]+")
 
@@ -50,7 +50,7 @@ danger(args) {
                 else ->
                     warn(
                         "Название ветки не соответствует паттерну!\n" +
-                                "1) Название ветки должно начинаться с **feature/**, **tests/** или **release/**\n" +
+                                "1) Название ветки должно начинаться с **feature/**, **tests/**, **fix/** или **release/**\n" +
                                 "2) Далее идет id задачи из jira в верхнем регистре\n" +
                                 "3) Через нижнее подчеркивание идет краткое название задачи\n" +
                                 "Например, **feature/MAPP-1111_do_something_good** или **feature/NO-ISSUE_do_something_good**\n" +
