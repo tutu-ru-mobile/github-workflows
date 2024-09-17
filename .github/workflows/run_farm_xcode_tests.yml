@@ -119,11 +119,7 @@ jobs:
         id: starttime
         run: echo "time=$(date +"%Y-%m-%dT%H:%M:%S%z")" >> $GITHUB_OUTPUT
       - name: Checkout repository
-        uses: actions/checkout@v3.1.0
-      - name: Setup SSH
-        uses: tutu-ru-mobile/github-action-ssh-agent@v1.1.0-tutu
-        with:
-          ssh-private-key: ${{ secrets.ssh_private_key }}
+        uses: actions/checkout@v4
       - name: Change origin to ssh link
         run: git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
       - run: bundle install
