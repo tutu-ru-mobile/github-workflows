@@ -1,0 +1,20 @@
+name: "Init emulators"
+description: "Init android emulators"
+
+inputs:
+  emulator:
+    description: "Emulator name"
+    default: Pixel_8_API_32
+    required: false
+runs:
+  using: "composite"
+
+  steps:
+    - name: Init emulators
+      continue-on-error: false
+      run: |
+        rm -rf /Users/dev/.android/avd/
+        mkdir -p /Users/dev/.android/avd/
+        cp ${{ github.action_path }}/android/${{ inputs.emulator }}.ini /Users/dev/.android/avd/
+        cp -R ${{ github.action_path }}/android/avd/ /Users/dev/.android/avd/
+      shell: bash
