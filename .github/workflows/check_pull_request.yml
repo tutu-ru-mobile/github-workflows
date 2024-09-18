@@ -1,4 +1,4 @@
-name: Check pull request
+name: (!!! Deprecated) Check pull request
 
 on:
   workflow_call:

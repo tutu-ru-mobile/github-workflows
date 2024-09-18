@@ -1,4 +1,4 @@
-name: Run Xcode tests
+name: (!!!Deprecated) Run Xcode tests
 
 on:
   workflow_call:
