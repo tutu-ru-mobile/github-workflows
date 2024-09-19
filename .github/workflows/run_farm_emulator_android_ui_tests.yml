@@ -118,6 +118,9 @@ jobs:
           MAVEN_READONLY_TOKEN: ${{ secrets.maven_readonly_token }}
           GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: ${{ inputs.is_gradle_cache_debug_enabled }}
 
+      - name: Init emulator
+        uses: tutu-ru-mobile/github-workflows/action_init_emulator@main
+
       - name: Start emulators
         continue-on-error: false
         run: |
