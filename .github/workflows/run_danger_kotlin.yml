@@ -24,6 +24,11 @@ jobs:
   pull-request:
     runs-on: tutu-mac-builder
     steps:
+      - name: Remove old config files
+        run: |
+          rm config/detekt/detekt.yml
+          rm Dangerfile.df.kts
+
       - uses: actions/checkout@v4
 
       - name: Copy detekt config
