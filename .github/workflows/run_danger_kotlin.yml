@@ -25,9 +25,10 @@ jobs:
     runs-on: tutu-mac-builder
     steps:
       - name: Remove old config files
+        continue-on-error: true
         run: |
-          rm config/detekt/detekt.yml 2>/dev/null
-          rm Dangerfile.df.kts 2>/dev/null
+          rm config/detekt/detekt.yml
+          rm Dangerfile.df.kts
 
       - uses: actions/checkout@v4
 
