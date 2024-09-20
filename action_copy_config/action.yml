@@ -17,4 +17,5 @@ runs:
         mkdir -p "$target_dir"
         if [ ! -f $target_dir/$target_file ]; then
           cp "${{ github.action_path }}/${{ inputs.file_path }}" "$target_dir/$target_file"
+        fi
       shell: bash
