@@ -26,8 +26,8 @@ jobs:
     steps:
       - name: Remove old config files
         run: |
-          rm config/detekt/detekt.yml
-          rm Dangerfile.df.kts
+          rm config/detekt/detekt.yml 2>/dev/null
+          rm Dangerfile.df.kts 2>/dev/null
 
       - uses: actions/checkout@v4
 
