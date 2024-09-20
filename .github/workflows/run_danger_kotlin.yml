@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Copy detekt config
-        uses: tutu-ru-mobile/github-workflows/action_copy_config@main
+        uses: tutu-ru-mobile/github-workflows/action_copy_config@feature/MCORE-655_pr_check_update
         with:
           file_path: 'config/detekt/detekt.yml'
 
@@ -36,7 +36,7 @@ jobs:
         run: ./gradlew detekt
 
       - name: Copy Dangerfile
-        uses: tutu-ru-mobile/github-workflows/action_copy_config@main
+        uses: tutu-ru-mobile/github-workflows/action_copy_config@feature/MCORE-655_pr_check_update
         with:
           file_path: 'Dangerfile.df.kts'
        

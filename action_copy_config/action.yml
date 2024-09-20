@@ -15,6 +15,6 @@ runs:
         target_dir="$(dirname ${{ inputs.file_path }})"
         target_file="$(basename ${{ inputs.file_path }})"
         mkdir -p "$target_dir"
-        rm -f "$target_dir/$target_file"
-        cp "${{ github.action_path }}/${{ inputs.file_path }}" "$target_dir/$target_file"
+        if [ ! -f $target_dir/$target_file ]; then
+          cp "${{ github.action_path }}/${{ inputs.file_path }}" "$target_dir/$target_file"
       shell: bash
