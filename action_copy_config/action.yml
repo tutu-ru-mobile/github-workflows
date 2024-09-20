@@ -10,7 +10,7 @@ runs:
 
   steps:
     - name: Copy config
-      continue-on-error: false
+      continue-on-error: true
       run: |
         target_dir="$(dirname ${{ inputs.file_path }})"
         target_file="$(basename ${{ inputs.file_path }})"
