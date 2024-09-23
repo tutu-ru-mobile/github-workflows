@@ -292,8 +292,7 @@ jobs:
           chat_id: ${{ secrets.tg_chat_id }}
           bot_token: ${{ secrets.tg_release_token_id }}
           text: |
-            test_plan=${{ inputs.test_plan }}
-            ${{ needs.run_ui_tests.outputs.test_status == 'success' && '✅ $test_plan UI тесты успешно прошли' || '❌ Прогон $test_plan UI тестов упал' }}
+            ${{ needs.run_ui_tests.outputs.test_status == 'success' && '✅ inputs.test_plan UI тесты успешно прошли' || '❌ Прогон inputs.test_plan UI тестов упал' }}
             🕐️ Время выполнения: ${{ needs.run_ui_tests.outputs.hours }}ч ${{ needs.run_ui_tests.outputs.minutes }}м
             🔧 Последний коммит: <a href="${{ env.COMMIT_URL }}">${{ env.SHA }}</a>
             🌳 Ветка: <a href="${{ env.BRANCH_URL }}">${{ github.ref_name }}</a>
