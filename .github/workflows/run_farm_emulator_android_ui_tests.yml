@@ -51,6 +51,9 @@ on:
         type: boolean
         required: false
         default: false
+      test_plan:
+        type: string
+        required: true
     secrets:
       github_access_token:
         required: true
@@ -146,6 +149,7 @@ jobs:
         env:
           CLEAR_PACKAGE_DATA: ${{ inputs.marathon_clear_package_data }}
           ONLY_RECORD_SNAPSHOTS: ${{ inputs.marathon_only_record_snapshots }}
+          TEST_PLAN: ${{ inputs.test_plan }}
 
       - name: Upload test results
         if: success() && inputs.upload_test_results
@@ -280,19 +284,38 @@ jobs:
           JOB_ID=$(jq '.jobs[0].id' job.json)
           echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
 
-      - name: Send message
+      - name: Send success message
+        if: ${{ needs.run_ui_tests.outputs.test_status == 'success' }}
         uses: tutu-ru-mobile/send-telegram-message@main
         with:
           message_thread_id: ${{ secrets.tg_thread_id }}
           chat_id: ${{ secrets.tg_chat_id }}
           bot_token: ${{ secrets.tg_release_token_id }}
           text: |
-            ${{ needs.run_ui_tests.outputs.test_status == 'success' && '✅ BaseTestPlan UI тесты успешно прошли' || '❌ Прогон BaseTestPlan UI тестов упал' }}
+            ✅ ${{ inputs.test_plan }} UI тесты успешно прошли
             🕐️ Время выполнения: ${{ needs.run_ui_tests.outputs.hours }}ч ${{ needs.run_ui_tests.outputs.minutes }}м
             🔧 Последний коммит: <a href="${{ env.COMMIT_URL }}">${{ env.SHA }}</a>
             🌳 Ветка: <a href="${{ env.BRANCH_URL }}">${{ github.ref_name }}</a>
             🧚‍ Автор: ${{ env.AUTHOR_NAME }}
           button1_title: "Logs"
           button1_url: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
-          button2_title: ${{ needs.run_ui_tests.outputs.test_status == 'success' && '✅ Allure' || '❌ Allure' }}
+          button2_title: ✅ Allure
+          button2_url: https://allure.tutu.ru/launch/${{ needs.run_ui_tests.outputs.launch_id }}
+
+      - name: Send fail message
+        if: ${{ needs.run_ui_tests.outputs.test_status != 'success' }}
+        uses: tutu-ru-mobile/send-telegram-message@main
+        with:
+          message_thread_id: ${{ secrets.tg_thread_id }}
+          chat_id: ${{ secrets.tg_chat_id }}
+          bot_token: ${{ secrets.tg_release_token_id }}
+          text: |
+            ❌ Прогон ${{ inputs.test_plan }} UI тестов упал
+            🕐️ Время выполнения: ${{ needs.run_ui_tests.outputs.hours }}ч ${{ needs.run_ui_tests.outputs.minutes }}м
+            🔧 Последний коммит: <a href="${{ env.COMMIT_URL }}">${{ env.SHA }}</a>
+            🌳 Ветка: <a href="${{ env.BRANCH_URL }}">${{ github.ref_name }}</a>
+            🧚‍ Автор: ${{ env.AUTHOR_NAME }}
+          button1_title: "Logs"
+          button1_url: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+          button2_title: ❌ Allure
           button2_url: https://allure.tutu.ru/launch/${{ needs.run_ui_tests.outputs.launch_id }}
