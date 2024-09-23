@@ -40,7 +40,7 @@ jobs:
   ptt_ui_tests:
     name: PTT UI tests
     if: always() && inputs.run_ptt
-    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@main"
+    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@feature/MCORE-666_fix_marathon"
     with:
       branch: ${{ inputs.branch }}
       upload_test_results: ${{ inputs.upload_test_results }}
@@ -67,7 +67,7 @@ jobs:
   avia_ui_tests:
     name: Avia UI tests
     if: always() && inputs.run_avia
-    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@main"
+    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@feature/MCORE-666_fix_marathon"
     with:
       branch: ${{ inputs.branch }}
       upload_test_results: ${{ inputs.upload_test_results }}
@@ -94,7 +94,7 @@ jobs:
   train_ui_tests:
     name: Train UI tests
     if: always() && inputs.run_train
-    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@main"
+    uses: "tutu-ru-mobile/github-workflows/.github/workflows/run_farm_emulator_android_ui_tests.yml@feature/MCORE-666_fix_marathon"
     with:
       branch: ${{ inputs.branch }}
       upload_test_results: ${{ inputs.upload_test_results }}

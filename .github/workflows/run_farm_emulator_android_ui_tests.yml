@@ -142,6 +142,7 @@ jobs:
         timeout-minutes: 45
         run: |
           cd ${{ inputs.marathon_path }}
+          echo $TEST_PLAN
           marathon
         env:
           CLEAR_PACKAGE_DATA: ${{ inputs.marathon_clear_package_data }}
