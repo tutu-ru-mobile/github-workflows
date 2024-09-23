@@ -63,6 +63,7 @@ jobs:
       tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
       tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_PTT_THREAD_ID }}
       tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
+      test_plan: ${{ secrets.TEST_PLAN }}
 
   avia_ui_tests:
     name: Avia UI tests
@@ -90,6 +91,7 @@ jobs:
       tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
       tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_MONOAVIA_THREAD_ID }}
       tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
+      test_plan: ${{ secrets.TEST_PLAN }}
 
   train_ui_tests:
     name: Train UI tests
@@ -117,6 +119,7 @@ jobs:
       tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
       tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_MONOTRAIN_THREAD_ID }}
       tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
+      test_plan: ${{ secrets.TEST_PLAN }}
 
   bus_ui_tests:
     name: Bus UI tests

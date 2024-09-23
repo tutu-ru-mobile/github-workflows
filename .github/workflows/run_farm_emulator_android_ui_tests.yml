@@ -147,6 +147,7 @@ jobs:
         env:
           CLEAR_PACKAGE_DATA: ${{ inputs.marathon_clear_package_data }}
           ONLY_RECORD_SNAPSHOTS: ${{ inputs.marathon_only_record_snapshots }}
+          TEST_PLAN: ${{ secrets.test_plan }}
 
       - name: Upload test results
         if: success() && inputs.upload_test_results
