@@ -51,6 +51,9 @@ on:
         type: boolean
         required: false
         default: false
+      test_plan:
+        type: string
+        required: true
     secrets:
       github_access_token:
         required: true
@@ -147,7 +150,7 @@ jobs:
         env:
           CLEAR_PACKAGE_DATA: ${{ inputs.marathon_clear_package_data }}
           ONLY_RECORD_SNAPSHOTS: ${{ inputs.marathon_only_record_snapshots }}
-          TEST_PLAN: ${{ secrets.test_plan }}
+          TEST_PLAN: ${{ inputs.test_plan }}
 
       - name: Upload test results
         if: success() && inputs.upload_test_results

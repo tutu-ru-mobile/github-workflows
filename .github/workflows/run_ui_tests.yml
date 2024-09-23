@@ -35,6 +35,9 @@ on:
         required: false
         type: boolean
         default: false
+      test_plan:
+        required: true
+        type: string
 
 jobs:
   ptt_ui_tests:
@@ -53,6 +56,7 @@ jobs:
       marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
       allure_project_id: "54"
       send_alert_to_tg: ${{ inputs.send_alert_to_tg }}
+      test_plan: ${{ inputs.test_plan }}
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
@@ -63,7 +67,6 @@ jobs:
       tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
       tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_PTT_THREAD_ID }}
       tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
-      test_plan: ${{ secrets.TEST_PLAN }}
 
   avia_ui_tests:
     name: Avia UI tests
@@ -81,6 +84,7 @@ jobs:
       marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
       allure_project_id: "16"
       send_alert_to_tg: ${{ inputs.send_alert_to_tg }}
+      test_plan: ${{ inputs.test_plan }}
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
@@ -91,7 +95,6 @@ jobs:
       tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
       tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_MONOAVIA_THREAD_ID }}
       tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
-      test_plan: ${{ secrets.TEST_PLAN }}
 
   train_ui_tests:
     name: Train UI tests
@@ -109,6 +112,7 @@ jobs:
       marathon_only_record_snapshots: ${{ inputs.record_snapshots }}
       allure_project_id: "98"
       send_alert_to_tg: ${{ inputs.send_alert_to_tg }}
+      test_plan: ${{ inputs.test_plan }}
     secrets:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       maven_readonly_token: ${{ secrets.TUTU_READ_PACKAGES_TOKEN }}
@@ -119,7 +123,6 @@ jobs:
       tg_chat_id: ${{ secrets.TG_AUTOTEST_CHAT_ID }}
       tg_thread_id: ${{ secrets.TG_AUTOTEST_CHAT_ANDROID_MONOTRAIN_THREAD_ID }}
       tg_release_token_id: ${{ secrets.RELEASE_TRAIN_TELEGRAM_TOKEN }}
-      test_plan: ${{ secrets.TEST_PLAN }}
 
   bus_ui_tests:
     name: Bus UI tests
