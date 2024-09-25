@@ -172,6 +172,7 @@ jobs:
 
       - name: Send allure report
         id: allure_send_report
+        continue-on-error: true
         if: (!inputs.marathon_only_record_snapshots) && always()
         run: |
           ALLURE_ARTIFACTS_PATH="send_to_allure"
