@@ -235,7 +235,6 @@ jobs:
           fi
 
       - name: Upload allure artifact
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.uploaded_artifact_name }}
