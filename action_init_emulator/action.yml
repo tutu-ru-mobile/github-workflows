@@ -6,6 +6,9 @@ inputs:
     description: "Emulator name"
     default: Pixel_8_API_32
     required: false
+  copies:
+    description: "Copies of emulator"
+    default: "1"
 runs:
   using: "composite"
 
@@ -15,6 +18,8 @@ runs:
       run: |
         rm -r /Users/dev/.android/avd/
         mkdir -p /Users/dev/.android/avd/
-        cp ${{ github.action_path }}/android/${{ inputs.emulator }}.ini /Users/dev/.android/avd/
+        for i in {1..${{ inputs.copies }}}; do
+        cp ${{ github.action_path }}/android/${{ inputs.emulator }}.ini /Users/dev/.android/avd/${{ inputs.emulator }}_${i}.ini
+        done
         cp -R ${{ github.action_path }}/android/avd/ /Users/dev/.android/avd/
       shell: bash
