@@ -234,6 +234,13 @@ jobs:
           echo "test_status=success" >> $GITHUB_OUTPUT
           fi
 
+      - name: Upload allure artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.uploaded_artifact_name }}
+          path: ${{ inputs.marathon_path }}/send_to_allure
+
       - name: Stop measuring workflow duration
         if: ${{ !cancelled() }}
         id: seconds_from_date
