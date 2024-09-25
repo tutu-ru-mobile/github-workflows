@@ -175,6 +175,7 @@ jobs:
         continue-on-error: false
         if: (!inputs.marathon_only_record_snapshots) && always()
         run: |
+          pwd
           ALLURE_ARTIFACTS_PATH="send_to_allure"
           rm -rf $ALLURE_ARTIFACTS_PATH
           mkdir $ALLURE_ARTIFACTS_PATH
@@ -239,7 +240,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           name: ${{ inputs.uploaded_artifact_name }}
-          path: ${{ inputs.marathon_path }}/send_to_allure
+          path: send_to_allure
 
       - name: Stop measuring workflow duration
         if: ${{ !cancelled() }}
