@@ -187,7 +187,7 @@ jobs:
           done
           files=$(ls $ALLURE_ARTIFACTS_PATH | wc -l | tr -d ' ')
           if [[ $files > 0 ]]; then
-            echo "files to be send to allure: $files
+            echo "files to be send to allure: $files"
             
             RESULT=$(allurectl launch create --output json ${ALLURE_ARTIFACTS_PATH} \
             --token ${{ secrets.allure_token }} \
