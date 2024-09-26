@@ -181,57 +181,62 @@ jobs:
           
           devices=$(adb devices | tail -n +2 | cut -sf 1)
           for device in $devices; do
-          adb -s "$device" shell 'find /sdcard/googletest/test_outputfiles/allure-results \( -name "*.txt" -o -name "*.png" -o -name "*.json" \)' | while read -r file; do
-          adb -s "$device" pull "$file" $ALLURE_ARTIFACTS_PATH
+            adb -s "$device" shell 'find /sdcard/googletest/test_outputfiles/allure-results \( -name "*.txt" -o -name "*.png" -o -name "*.json" \)' | while read -r file; do
+              adb -s "$device" pull "$file" $ALLURE_ARTIFACTS_PATH
+            done
           done
-          done
-          echo "files to be send to allure: $(ls $ALLURE_ARTIFACTS_PATH | wc -l | tr -d ' ')"
-          
-          RESULT=$(allurectl launch create --output json ${ALLURE_ARTIFACTS_PATH} \
-          --token ${{ secrets.allure_token }} \
-          --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
-          --project-id ${{ inputs.allure_project_id }} \
-          --launch-name "Прогон Android автотестов на CI")
-          
-          LAUNCH_ID=$(echo "$RESULT" | jq -r '.[0].id')
-          echo "launch_id=$LAUNCH_ID" >> $GITHUB_OUTPUT
-          
-          allurectl upload ${ALLURE_ARTIFACTS_PATH} \
-          --launch-id $LAUNCH_ID \
-          --token ${{ secrets.allure_token }} \
-          --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
-          --project-id ${{ inputs.allure_project_id }}
-          
-          echo "Allure launch is here ${{ vars.ALLURE_ENDPOINT }}/launch/$LAUNCH_ID" >> $GITHUB_STEP_SUMMARY
-          
-          LAUNCH_INFO=$(allurectl launch get $LAUNCH_ID \
-          --token ${{ secrets.allure_token }} \
-          --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
-          --output json)
-          
-          # Проверим количество сфейленных и успешных тестов
-          COUNT_PASSED_TESTS=$(echo $LAUNCH_INFO \
-          | jq '.[0].statistic[] | select(.status=="passed").count')
-          
-          COUNT_FAILED_TESTS=$(echo $LAUNCH_INFO \
-          | jq '.[0].statistic[] | select(.status=="failed").count')
-          
-          COUNT_BROKEN_TESTS=$(echo $LAUNCH_INFO \
-          | jq '.[0].statistic[] | select(.status=="broken").count')
-          
-          # Проверим количество сфейленных и успешных тестов
-          echo "Passed tests count $COUNT_PASSED_TESTS" >> $GITHUB_STEP_SUMMARY
-          echo "Failed tests count $COUNT_FAILED_TESTS" >> $GITHUB_STEP_SUMMARY
-          echo "Broken tests count $COUNT_BROKEN_TESTS" >> $GITHUB_STEP_SUMMARY
-          
-          if { [[ -n $COUNT_FAILED_TESTS ]] && [[ $COUNT_FAILED_TESTS > 0 ]]; } || 
-          { [[ -n $COUNT_BROKEN_TESTS ]] && [[ $COUNT_BROKEN_TESTS > 0 ]]; };
-          then
-          echo "Some tests was failed"
-          echo "test_status=failed" >> $GITHUB_OUTPUT
+          files=$(ls $ALLURE_ARTIFACTS_PATH | wc -l | tr -d ' ')
+          if [[ $files > 0 ]]; then
+            echo "files to be send to allure: $files
+            
+            RESULT=$(allurectl launch create --output json ${ALLURE_ARTIFACTS_PATH} \
+            --token ${{ secrets.allure_token }} \
+            --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
+            --project-id ${{ inputs.allure_project_id }} \
+            --launch-name "Прогон Android автотестов на CI")
+            
+            LAUNCH_ID=$(echo "$RESULT" | jq -r '.[0].id')
+            echo "launch_id=$LAUNCH_ID" >> $GITHUB_OUTPUT
+            
+            allurectl upload ${ALLURE_ARTIFACTS_PATH} \
+            --launch-id $LAUNCH_ID \
+            --token ${{ secrets.allure_token }} \
+            --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
+            --project-id ${{ inputs.allure_project_id }}
+            
+            echo "Allure launch is here ${{ vars.ALLURE_ENDPOINT }}/launch/$LAUNCH_ID" >> $GITHUB_STEP_SUMMARY
+            
+            LAUNCH_INFO=$(allurectl launch get $LAUNCH_ID \
+            --token ${{ secrets.allure_token }} \
+            --endpoint "${{ vars.ALLURE_ENDPOINT }}" \
+            --output json)
+            
+            # Проверим количество сфейленных и успешных тестов
+            COUNT_PASSED_TESTS=$(echo $LAUNCH_INFO \
+            | jq '.[0].statistic[] | select(.status=="passed").count')
+            
+            COUNT_FAILED_TESTS=$(echo $LAUNCH_INFO \
+            | jq '.[0].statistic[] | select(.status=="failed").count')
+            
+            COUNT_BROKEN_TESTS=$(echo $LAUNCH_INFO \
+            | jq '.[0].statistic[] | select(.status=="broken").count')
+            
+            # Проверим количество сфейленных и успешных тестов
+            echo "Passed tests count $COUNT_PASSED_TESTS" >> $GITHUB_STEP_SUMMARY
+            echo "Failed tests count $COUNT_FAILED_TESTS" >> $GITHUB_STEP_SUMMARY
+            echo "Broken tests count $COUNT_BROKEN_TESTS" >> $GITHUB_STEP_SUMMARY
+            
+            if { [[ -n $COUNT_FAILED_TESTS ]] && [[ $COUNT_FAILED_TESTS > 0 ]]; } || 
+            { [[ -n $COUNT_BROKEN_TESTS ]] && [[ $COUNT_BROKEN_TESTS > 0 ]]; }; then
+              echo "Some tests was failed"
+              echo "test_status=failed" >> $GITHUB_OUTPUT
+            else
+              echo "All tests succeeded"
+              echo "test_status=success" >> $GITHUB_OUTPUT
+            fi
           else
-          echo "All tests succeeded"
-          echo "test_status=success" >> $GITHUB_OUTPUT
+            echo "No report was found!"
+            exit 1
           fi
 
       - name: Stop measuring workflow duration
