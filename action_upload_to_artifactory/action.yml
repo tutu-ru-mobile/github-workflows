@@ -1,4 +1,5 @@
 name: "Upload to artifactory"
+description: "Upload to artifactory"
 
 inputs:
   artifactory-url:
@@ -29,8 +30,27 @@ runs:
     - name: Upload to artifactory
       shell: bash
       run: |
-        FILE_TO_UPLOAD=${{inputs.filename-in-artifactory}}.zip
-        zip -r $FILE_TO_UPLOAD ${{inputs.what-to-archive}}
+        FILE_TO_UPLOAD=""
+
+        if [[ -d ${{inputs.what-to-archive}} ]]; then
+          # we need to zip foler into archive
+          if [[ ${{inputs.filename-in-artifactory}} == *.zip ]];
+          then
+            # no add extension
+            FILE_TO_UPLOAD=${{inputs.filename-in-artifactory}}
+          else
+            # add extension
+            FILE_TO_UPLOAD=${{inputs.filename-in-artifactory}}.zip
+          fi
+          zip -r $FILE_TO_UPLOAD ${{inputs.what-to-archive}}
+        elif [[ -f ${{inputs.what-to-archive}} ]]; then
+          # we need to upload file itself
+          cp ${{inputs.what-to-archive}} ${{inputs.filename-in-artifactory}}
+          FILE_TO_UPLOAD=${{ inputs.filename-in-artifactory }}
+        else
+            echo "ERROR: ${{inputs.what-to-archive}} is not valid file or directory name"
+            exit 1
+        fi        
 
         CURRENT_DATE=$(date +"%Y%m%d%H%M%S")
         ARTIFACTORY_FILE=${{ inputs.artifactory-url }}/${{ inputs.artifactory-project }}/${{ inputs.artifactory-slug }}/$CURRENT_DATE/$FILE_TO_UPLOAD
@@ -39,6 +59,6 @@ runs:
           -T $FILE_TO_UPLOAD \
           $ARTIFACTORY_FILE
 
-        rm -rf $FILE_TO_UPLOAD
-
+        rm $FILE_TO_UPLOAD
+ 
         echo "Artifactory URL is:  $ARTIFACTORY_FILE" >> $GITHUB_STEP_SUMMARY
