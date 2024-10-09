@@ -49,7 +49,8 @@ runs:
           FILE_TO_UPLOAD=${{ inputs.filename-in-artifactory }}
         else
             echo "ERROR: ${{inputs.what-to-archive}} is not valid file or directory name"
-            exit 1
+            echo "ERROR: Please, check if file exists from previous step!!!"
+            exit 0
         fi        
 
         CURRENT_DATE=$(date +"%Y%m%d%H%M%S")
