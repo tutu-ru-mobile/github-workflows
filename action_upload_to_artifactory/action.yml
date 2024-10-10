@@ -45,7 +45,7 @@ runs:
           zip -r $FILE_TO_UPLOAD ${{inputs.what-to-archive}}
         elif [[ -f ${{inputs.what-to-archive}} ]]; then
           # we need to upload file itself
-          cp ${{inputs.what-to-archive}} ${{inputs.filename-in-artifactory}}
+          cp -f ${{inputs.what-to-archive}} ${{inputs.filename-in-artifactory}}
           FILE_TO_UPLOAD=${{ inputs.filename-in-artifactory }}
         else
             echo "ERROR: ${{inputs.what-to-archive}} is not valid file or directory name"
